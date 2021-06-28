@@ -1,0 +1,36 @@
+---
+- name: Generate facts - internal users
+  include_tasks: gen-user-pass.yml
+  loop: "{{ internal_users }}"
+  no_log: False
+  vars:
+    is_internal_user: true
+
+- name: Generate facts
+  include_tasks: gen-user-pass.yml
+  loop: "{{ users }}"
+  no_log: False
+  vars:
+    is_internal_user: false
+
+- name: Get elasticsearch tenant list
+  set_fact:
+    elasticsearch_tenants: "{{ users | map(attribute='tenant') | unique | list | join(',') | replace('.', '_') }}"
+    kibana_loginscreen_text: "{% for user in users %}{% if user['role'] == 'readonly' %}Tenant: {{ user['tenant'] }} user: {{ user['user'] + '_' + user['tenant'] | replace('.', '_') }} password: {{ user['password'] }}{% endif %}{% endfor %}"
+
+- name: Set the security plugin configuration
+  template:
+    src: "{{ item }}.j2"
+    dest: "{{ opendistro_plugin_dir }}/securityconfig/{{ item }}"
+  loop:
+    - internal_users.yml
+    - tenants.yml
+    - config.yml
+    - roles.yml
+    - roles_mapping.yml
+  notify: reconfigure security plugin
+
+- name: Ensure that Elasticsearch service is running before reconfiguration
+  systemd:
+    name: elasticsearch
+    state: started

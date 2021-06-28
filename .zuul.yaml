@@ -1,0 +1,10 @@
+---
+- project:
+    check:
+      jobs:
+        - linters:
+            nodeset: fedora-latest-pod
+    gate:
+      jobs:
+        - linters:
+            nodeset: fedora-latest-pod

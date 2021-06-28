@@ -1,0 +1,18 @@
+<IfModule mod_proxy.c>
+    # Elasticsearch doew not accept http requests
+    SSLProxyEngine on
+    SSLProxyVerify none
+    SSLProxyCheckPeerCN off
+    SSLProxyCheckPeerName off
+    SSLProxyCheckPeerExpire off
+
+    <Location "/">
+        ProxyPass http://{{ ansible_default_ipv4.address }}:5601
+        ProxyPassReverse http://{{ ansible_default_ipv4.address }}:5601
+    </Location>
+
+    <Location /elasticsearch>
+        ProxyPass https://{{ ansible_default_ipv4.address }}:9200
+        ProxyPassReverse https://{{ ansible_default_ipv4.address }}:9200
+    </Location>
+</IfModule>

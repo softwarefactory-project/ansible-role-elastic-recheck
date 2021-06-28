@@ -1,0 +1,12 @@
+---
+# https://opendistro.github.io/for-elasticsearch-docs/docs/security/configuration/generate-certificates/#run-securityadminsh
+- name: reconfigure security plugin
+  shell: >
+    {{ opendistro_plugin_dir }}/tools/securityadmin.sh \
+      -cd {{ opendistro_plugin_dir }}/securityconfig/ \
+      -icl -nhnv -cacert {{ elk_stack_certs }}/localCA.pem \
+      -cert {{ elk_stack_certs }}/elasticsearch-admin.crt \
+      -key {{ elk_stack_certs }}/elasticsearch-admin.key \
+      -h {{ ansible_default_ipv4.address }}
+  environment:
+    JAVA_HOME: "{{ java_home }}"

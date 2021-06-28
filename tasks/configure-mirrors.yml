@@ -1,0 +1,10 @@
+---
+- name: Configure repos
+  yum_repository:
+    name: "{{ item.name }}"
+    description: "{{ item.desc }}"
+    baseurl: "{{ item.url }}"
+    gpgkey: "{{ item.gpgkey }}"
+    gpgcheck: "{{ item.gpgcheck }}"
+    enabled: "{{ item.enabled | default('1') }}"
+  loop: "{{ opendistro_repos }}"

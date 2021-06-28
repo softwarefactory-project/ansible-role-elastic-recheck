@@ -1,0 +1,82 @@
+---
+# Base on:  https://opendistro.github.io/for-elasticsearch-docs/docs/security/configuration/generate-certificates/#generate-certificates
+- name: Create cert dir
+  file:
+    path: "{{ elk_stack_certs }}"
+    owner: root
+    group: elasticsearch
+    state: directory
+
+- name: Check if CA certs was done earlier
+  stat:
+    path: "{{ elk_stack_certs }}/localCA.pem"
+  register: _ca_cert
+
+- name: Generate CA cert
+  block:
+    - name: Install required packages
+      package:
+        name: openssl
+        state: present
+
+    - name: Generate CA cert
+      shell: |
+        openssl genrsa -out {{ elk_stack_certs }}/localCA-key.pem 2048 && \
+        openssl req -new -x509 -sha256 -days 3650 \
+          -subj "/C=PL/ST=WROCLAW/L=WROCLAW/O=ElasticsearchSoftwareFactory" \
+          -key {{ elk_stack_certs }}/localCA-key.pem \
+          -out {{ elk_stack_certs }}/localCA.pem
+      register: _elk_ca_cert
+      notify: reconfigure security plugin
+  when: not _ca_cert.stat.exists
+
+- name: Generate certs for Elasticsearch
+  block:
+    - name: Check if Elastcisearch admin certs was done earlier
+      stat:
+        path: "{{ elk_stack_certs }}/elasticsearch-admin.crt"
+      register: _elk_admin_cert
+
+    - name: Generate admin certs
+      shell: |
+        openssl genrsa -out {{ elk_stack_certs }}/elasticsearch-admin-key-temp.pem 2048 && \
+        openssl pkcs8 -inform PEM -outform PEM -in {{ elk_stack_certs }}/elasticsearch-admin-key-temp.pem \
+          -topk8 -nocrypt -v1 PBE-SHA1-3DES -out {{ elk_stack_certs }}/elasticsearch-admin.key && \
+        openssl req -new -key {{ elk_stack_certs }}/elasticsearch-admin.key \
+          -subj "/C=PL/ST=WROCLAW/L=WROCLAW/O=ElasticsearchSoftwareFactory/CN={{ fqdn }}" \
+          -out {{ elk_stack_certs }}/elasticsearch-admin.csr && \
+        openssl x509 -req -in {{ elk_stack_certs }}/elasticsearch-admin.csr \
+          -CA {{ elk_stack_certs }}/localCA.pem -days 3650 \
+          -CAkey {{ elk_stack_certs }}/localCA-key.pem \
+          -CAcreateserial -sha256 -out {{ elk_stack_certs }}/elasticsearch-admin.crt
+      register: _elk_elasticsearch_cert
+      when: not _elk_admin_cert.stat.exists
+      notify: reconfigure security plugin
+
+    - name: Take elasticsearch subject
+      shell: |
+        openssl x509 -subject -nameopt RFC2253 -noout -in {{ elk_stack_certs }}/elasticsearch-admin.crt | sed 's/subject= //g'
+      register: elk_cert_subject
+
+    - name: Remove demo certs before restart
+      file:
+        path: "/etc/elasticsearch/{{ item }}"
+        state: absent
+      loop:
+        - esnode-key.pem
+        - esnode.pem
+        - kirk-key.pem
+        - kirk.pem
+        - root-ca.pem
+
+    - name: Copy CA cert
+      copy:
+        src: /etc/elasticsearch/certs/localCA.pem
+        dest: /etc/pki/ca-trust/source/anchors/localCA.pem
+        mode: '0644'
+        owner: root
+        group: root
+        remote_src: true
+
+    - name: Trust generated cert
+      command: update-ca-trust

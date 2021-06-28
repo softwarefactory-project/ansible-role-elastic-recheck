@@ -1,0 +1,49 @@
+---
+fqdn: elasticsearch.sftests.com
+java_home: /usr/lib/jvm/jre
+elk_stack_certs: /etc/elasticsearch/certs
+opendistro_version: 1.13.1
+
+# NOTE: if cluster_role is empty, it would configure Elasticsearch
+# as a single node cluster.
+cluster_role: ''
+
+elasticsearch_maximum_heap_size: 512m
+elasticsearch_minimum_heap_size: 128m
+
+opendistro_repos_name: elasticsearch-7.x,opendistroforelasticsearch-artifacts
+opendistro_plugin_dir: /usr/share/elasticsearch/plugins/opendistro_security
+opendistro_repos:
+  - name: elasticsearch-7.x
+    desc: Elasticsearch repository for 7.x packages
+    url: https://artifacts.elastic.co/packages/oss-7.x/yum
+    gpgkey: https://artifacts.elastic.co/GPG-KEY-elasticsearch
+    gpgcheck: 1
+    enabled: 1
+  - name: opendistroforelasticsearch-artifacts
+    desc: Release RPM artifacts of OpenDistroForElasticsearch
+    url: https://d3g5vo6xdbdb9a.cloudfront.net/yum/noarch/
+    gpgkey: https://d3g5vo6xdbdb9a.cloudfront.net/GPG-KEY-opendistroforelasticsearch
+    gpgcheck: 1
+    enabled: 1
+
+# FIXME: internal user can not be changed. It requires additional configuration
+# in {{ opendistro_plugin_dir }}/securityconfig/audit.yml and
+# {{ opendistro_plugin_dir }}/securityconfig/elasticsearch.yml.
+internal_users:
+  - user: "admin"
+    role: "admin"
+    password: "admin"
+  - user: "kibanaserver"
+    role: "kibanauser"
+    password: "kibanaserver"
+
+users: []
+# NOTE: optional user if you want to deploy Kibana on other host.
+# Normally it should have 'kibanauser' role, but it requires additional
+# configuration. Check note above 'internal_users'.
+# Example:
+#  - user: "admin"
+#    role: "admin"
+#    password: "admin"
+#    tenant: "sftests.com"

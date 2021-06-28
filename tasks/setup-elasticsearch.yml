@@ -1,0 +1,7 @@
+---
+- name: Install Elasticsearch and requirements
+  yum:
+    name:
+      - java-11-openjdk
+      - opendistroforelasticsearch
+    state: present

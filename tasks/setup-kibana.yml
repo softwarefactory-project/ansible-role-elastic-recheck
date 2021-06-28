@@ -1,0 +1,6 @@
+---
+- name: Install Kibana
+  yum:
+    name:
+      - opendistroforelasticsearch-kibana
+    state: present

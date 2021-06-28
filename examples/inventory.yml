@@ -1,0 +1,11 @@
+all:
+  children:
+    main:
+      hosts:
+        main: {}
+    node:
+      hosts: {}
+  hosts:
+    main:
+      ansible_user: centos
+      ansible_host: 192.168.122.200

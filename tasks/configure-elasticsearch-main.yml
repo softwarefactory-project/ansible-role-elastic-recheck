@@ -1,0 +1,78 @@
+---
+- name: Configure common Elasticsearch settings
+  lineinfile:
+    dest: /etc/elasticsearch/elasticsearch.yml
+    regexp: '^#?{{ item.regexp }}.*'
+    line: '{{ item.line }}'
+    create: '{{ item.create | default(true) }}'
+  loop:
+    - regexp: 'network.host:'
+      line: "network.host: {{ ansible_default_ipv4.address }}"
+    - regexp: 'cluster.name:'
+      line: "cluster.name: {{ fqdn | replace('.', '_') }}"
+    - regexp: 'node.name:'
+      line: "node.name: {{ inventory_hostname }}"
+    - regexp: 'http.port:'
+      line: 'http.port: 9200'
+    - regexp: '  - CN='
+      line: "  - {{ elk_cert_subject.stdout | default('CN=elasticsearch.sftests.com,O=ElasticsearchSoftwareFactory,L=WROCLAW,ST=DOLNOSLASKIE,C=PL') }}"
+      dest: /etc/elasticsearch/elasticsearch.yml
+    - regexp: 'opendistro_security.ssl.transport.pemcert_filepath:'
+      line: "opendistro_security.ssl.transport.pemcert_filepath: {{ elk_stack_certs }}/elasticsearch-admin.crt"
+      dest: /etc/elasticsearch/elasticsearch.yml
+    - regexp: 'opendistro_security.ssl.transport.pemkey_filepath'
+      line: "opendistro_security.ssl.transport.pemkey_filepath: {{ elk_stack_certs }}/elasticsearch-admin.key"
+      dest: /etc/elasticsearch/elasticsearch.yml
+    - regexp: 'opendistro_security.ssl.transport.pemtrustedcas_filepath'
+      line: "opendistro_security.ssl.transport.pemtrustedcas_filepath: {{ elk_stack_certs }}/localCA.pem"
+      dest: /etc/elasticsearch/elasticsearch.yml
+    - regexp: 'opendistro_security.ssl.http.pemcert_filepath'
+      line: "opendistro_security.ssl.http.pemcert_filepath: {{ elk_stack_certs }}/elasticsearch-admin.crt"
+      dest: /etc/elasticsearch/elasticsearch.yml
+    - regexp: 'opendistro_security.ssl.http.pemkey_filepath'
+      line: "opendistro_security.ssl.http.pemkey_filepath: {{ elk_stack_certs }}/elasticsearch-admin.key"
+      dest: /etc/elasticsearch/elasticsearch.yml
+    - regexp: 'opendistro_security.ssl.http.pemtrustedcas_filepath'
+      line: "opendistro_security.ssl.http.pemtrustedcas_filepath: {{ elk_stack_certs }}/localCA.pem"
+      dest: /etc/elasticsearch/elasticsearch.yml
+    - regexp: '########'
+      line: ''
+      dest: /etc/elasticsearch/elasticsearch.yml
+    - regexp: 'opendistro_security.allow_unsafe_democertificates'
+      line: 'opendistro_security.allow_unsafe_democertificates: false'
+      dest: /etc/elasticsearch/elasticsearch.yml
+  register: _common_config
+
+- name: Configure jvm Elasticsearch settings
+  lineinfile:
+    dest: /etc/elasticsearch/jvm.options
+    regexp: '^#?{{ item.regexp }}.*'
+    line: '{{ item.line }}'
+    create: '{{ item.create | default(true) }}'
+  loop:
+    - regexp: '-Xms'
+      line: '-Xms{{ elasticsearch_minimum_heap_size }}'
+      dest: /etc/elasticsearch/jvm.options
+    - regexp: '-Xmx'
+      line: '-Xmx{{ elasticsearch_maximum_heap_size }}'
+      dest: /etc/elasticsearch/jvm.options
+
+- name: Configure cluster role settings
+  lineinfile:
+    dest: /etc/elasticsearch/elasticsearch.yml
+    regexp: '^#?{{ item.regexp }}.*'
+    line: '{{ item.line }}'
+    create: '{{ item.create | default(true) }}'
+  loop:
+    - regexp: 'discovery.type'
+      line: "discovery.type: single-node"
+    - regexp: 'node.master:'
+      line: 'node.master: true'
+  when: not cluster_role
+  register: _cluster_role_config
+
+- name: Restart service if necessary
+  service:
+    name: elasticsearch
+    state: restarted
+  when: _common_config.changed or _cluster_role_config.changed

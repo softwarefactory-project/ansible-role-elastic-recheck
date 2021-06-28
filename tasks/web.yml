@@ -1,0 +1,28 @@
+---
+- name: Installing required packages
+  package:
+    name:
+      - httpd
+      - mod_ssl
+      - mod_wsgi
+    state: present
+
+- name: Setup web config
+  template:
+    src: gateway-kibana.conf.j2
+    dest: /etc/httpd/conf.d/gateway-kibana.conf
+    mode: '0444'
+    owner: root
+    group: root
+  register: _httpd_conf
+
+- name: Remove welcome page
+  file:
+    path: /etc/httpd/conf.d/welcome.conf
+    state: absent
+
+- name: Restart httpd service if necessary
+  service:
+    name: httpd
+    state: restarted
+  when: _httpd_conf.changed

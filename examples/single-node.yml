@@ -1,0 +1,38 @@
+---
+- hosts: main
+  become: true
+  tasks:
+    - name: Setup Opendistro Elasticsearch
+      include_role:
+        name: ansible-role-elastic-recheck
+        tasks_from: setup-elasticsearch.yml
+
+    - name: Setup Opendistro Kibana
+      include_role:
+        name: ansible-role-elastic-recheck
+        tasks_from: setup-kibana.yml
+
+    - name: Generate certs
+      include_role:
+        name: ansible-role-elastic-recheck
+        tasks_from: gen_certs.yml
+
+    - name: Configure Elasticsearch
+      include_role:
+        name: ansible-role-elastic-recheck
+        tasks_from: configure-main.yml
+
+    - name: Configure Kibana
+      include_role:
+        name: ansible-role-elastic-recheck
+        tasks_from: configure-kibana.yml
+
+    - name: Create users
+      include_role:
+        name: ansible-role-elastic-recheck
+        tasks_from: create_users.yml
+
+    - name: Setup web for Kibana
+      include_role:
+        name: ansible-role-elastic-recheck
+        tasks_from: web.yml

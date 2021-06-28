@@ -1,0 +1,24 @@
+---
+- name: Configure mirrors
+  include_tasks: configure-mirrors.yml
+
+- name: Setup Opendistro Elasticsearch
+  include_tasks: setup-elasticsearch.yml
+
+- name: Setup Opendistro Kibana
+  include_tasks: setup-kibana.yml
+
+- name: Generate certs
+  include_tasks: gen-certs.yml
+
+- name: Configure Elasticsearch
+  include_tasks: configure-elasticsearch-main.yml
+
+- name: Create users
+  include_tasks: create-users.yml
+
+- name: Configure Kibana
+  include_tasks: configure-kibana.yml
+
+- name: Web configuration
+  include_tasks: web.yml
