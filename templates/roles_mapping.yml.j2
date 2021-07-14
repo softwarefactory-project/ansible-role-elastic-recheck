@@ -67,10 +67,16 @@ kibana_viewer:
 {% if 'role' in user and 'tenant' in user %}
 {% if user.role == 'readonly' %}
 kibana_viewer_{{ user.tenant | replace('.', '_') }}:
-  reserved: false
+  reserved: true
   backend_roles:
   - "kibana_viewer_{{ user.tenant | replace('.', '_') }}"
   description: "Maps kibana viewer role for tenant {{ user.tenant | replace('.', '_') }}"
+{% elif user.role == 'admin' %}
+{{ user.user }}_{{ user.tenant | replace('.', '_') }}:
+  reserved: true
+  backend_roles:
+  - "{{ user.user }}_{{ user.tenant | replace('.', '_') }}"
+  description: "An {{ user.user }} user for tenant {{ user.tenant | replace('.', '_') }}"
 {% endif %}
 {% endif %}
 {% endfor %}

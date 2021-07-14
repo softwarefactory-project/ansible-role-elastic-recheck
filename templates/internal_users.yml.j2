@@ -30,7 +30,7 @@ kibana_{{ user.tenant | replace('.', '_') }}:
   hash: {{ vars['elasticsearch_' + user.user + '_' + (user.tenant | replace('.', '_')) + '_hash'] }}
   reserved: true
   backend_roles:
-    - "{{ user.role }}"
+    - "{{ user.role }}_{{ user.tenant | replace('.', '_') }}"
   description: "User {{ user.user }} user for {{ user.role }}"
   hidden: true
 {% endif %}

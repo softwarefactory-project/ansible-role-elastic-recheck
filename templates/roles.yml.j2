@@ -61,11 +61,32 @@ kibana_viewer_{{ user.tenant | replace('.', '_') }}:
       - "indices:data/write/update"
       - "indices:data/write/index"
       - "indices:data/write/bulk*"
+      - "indices:monitor/stats"
+      - "indices:monitor/recovery"
   tenant_permissions:
     - tenant_patterns:
         - "{{ user.tenant | replace('.', '_') }}"
       allowed_actions:
         - "kibana_all_read"
+{% elif user.role == 'admin' %}
+# From static role:
+# https://github.com/opendistro-for-elasticsearch/security/blob/main/src/main/resources/static_config/static_roles.yml#L6-L22
+# NOTE: without index_permissions set to "*", admin can not create
+# new index pattern.
+{{ user.user }}_{{ user.tenant | replace('.', '_') }}:
+  reserved: true
+  cluster_permissions:
+    - "*"
+  index_permissions:
+    - index_patterns:
+        - "*"
+      allowed_actions:
+        - "*"
+  tenant_permissions:
+    - tenant_patterns:
+        - "{{ user.tenant | replace('.', '_') }}"
+      allowed_actions:
+        - "kibana_all_write"
 {% endif %}
 {% endif %}
 {% endfor %}
