@@ -87,6 +87,30 @@ kibana_viewer_{{ user.tenant | replace('.', '_') }}:
         - "{{ user.tenant | replace('.', '_') }}"
       allowed_actions:
         - "kibana_all_write"
+{% elif user.role in ['curator', 'logstash' ] %}
+# From static role:
+# https://github.com/opendistro-for-elasticsearch/security/blob/main/src/main/resources/static_config/static_roles.yml#L113-L135
+{{ user.user }}_{{ user.tenant | replace('.', '_') }}:
+  reserved: true
+  cluster_permissions:
+    - "cluster_monitor"
+    - "cluster_composite_ops"
+    - "indices:admin/template/get"
+    - "indices:admin/template/put"
+    - "cluster:admin/ingest/pipeline/put"
+    - "cluster:admin/ingest/pipeline/get"
+    - "indices:admin/create"
+  tenant_permissions:
+    - tenant_patterns:
+        - "{{ user.tenant | replace('.', '_') }}"
+      allowed_actions:
+        - "kibana_all_write"
+  index_permissions:
+    - index_patterns:
+        - "logstash-{{ user.tenant | replace('.', '_') }}-*"
+      allowed_actions:
+        - "crud"
+        - "create_index"
 {% endif %}
 {% endif %}
 {% endfor %}

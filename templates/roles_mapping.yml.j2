@@ -71,12 +71,12 @@ kibana_viewer_{{ user.tenant | replace('.', '_') }}:
   backend_roles:
   - "kibana_viewer_{{ user.tenant | replace('.', '_') }}"
   description: "Maps kibana viewer role for tenant {{ user.tenant | replace('.', '_') }}"
-{% elif user.role == 'admin' %}
+{% elif user.role in ['admin', 'curator', 'logstash'] %}
 {{ user.user }}_{{ user.tenant | replace('.', '_') }}:
   reserved: true
   backend_roles:
   - "{{ user.user }}_{{ user.tenant | replace('.', '_') }}"
-  description: "An {{ user.user }} user for tenant {{ user.tenant | replace('.', '_') }}"
+  description: "An {{ user.role }} user for tenant {{ user.tenant | replace('.', '_') }}"
 {% endif %}
 {% endif %}
 {% endfor %}

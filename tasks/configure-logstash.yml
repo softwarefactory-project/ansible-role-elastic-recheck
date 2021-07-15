@@ -1,0 +1,30 @@
+---
+- name: Create required directories
+  file:
+    path: "/etc/logstash/{{ item }}"
+    owner: logstash
+    group: logstash
+    state: directory
+  loop:
+    - conf.d
+    - curator.d
+
+- name: Generate files for logstash and curator
+  include_tasks: logstash-curator.yml
+  loop: "{{ users | map(attribute='tenant') | unique | list | replace('.', '_') }}"
+
+- name: Set permissions for logstash directory
+  become: true
+  file:
+    path: /etc/logstash
+    state: directory
+    owner: logstash
+    group: logstash
+    recurse: true
+
+- name: Restart logstash service
+  become: true
+  service:
+   name: logstash
+   state: restarted
+   enabled: true

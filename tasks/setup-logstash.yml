@@ -1,0 +1,16 @@
+---
+- name: Install logstash package
+  yum:
+    name: "{{ item }}"
+    state: present
+    disablerepo: "*"
+    enablerepo: "elasticsearch-7.x,sfrelease-3.6"
+  loop:
+    - "logstash-oss-{{ logstash_stack_version }}.{{ logstash_sub_version }}"
+
+- name: Add logstash user to elasticsearch group
+  become: true
+  user:
+    name: logstash
+    groups: elasticsearch
+    append: true

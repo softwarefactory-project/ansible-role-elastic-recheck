@@ -75,4 +75,5 @@
   service:
     name: elasticsearch
     state: restarted
+    enabled: true
   when: _common_config.changed or _cluster_role_config.changed

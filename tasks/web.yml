@@ -24,4 +24,5 @@
   service:
     name: httpd
     state: restarted
+    enabled: true
   when: _httpd_conf.changed

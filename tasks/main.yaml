@@ -8,6 +8,12 @@
 - name: Setup Opendistro Kibana
   include_tasks: setup-kibana.yml
 
+- name: Setup Opendistro Logstash
+  include_tasks: setup-logstash.yml
+
+- name: Setup Curator package
+  include_tasks: setup-curator.yml
+
 - name: Generate certs
   include_tasks: gen-certs.yml
 
@@ -19,6 +25,9 @@
 
 - name: Configure Kibana
   include_tasks: configure-kibana.yml
+
+- name: Configure Logstash
+  include_tasks: configure-logstash.yml
 
 - name: Web configuration
   include_tasks: web.yml

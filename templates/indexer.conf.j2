@@ -1,0 +1,42 @@
+{% for user in users %}
+{% if 'role' in user and 'password' in user %}
+{% if user.role == 'logstash' and user.tenant | replace('.', '_') == item %}
+input {
+  tcp {
+    host => "{{ logstash_host | default(fqdn) }}"
+    port => "{{ logstash_input_port | default('9999') }}"
+    codec => json_lines {}
+    type => "zuul"
+  }
+}
+
+filter {
+  grok {
+    match => ["message", "(?<timestamp>[-0-9]{10}\s+[0-9.:]{12})(?<ms>[0-9]{3}) (?<sep>\|)%{GREEDYDATA:message}"]
+    overwrite => [ "message" ]
+  }
+  if [message] =~ /^\s*$/ {
+      drop { }
+  }
+  date {
+    match => ["timestamp", "yyyy-MM-dd HH:mm:ss.SSS"]
+    timezone => "UTC"
+  }
+}
+
+# From https://opendistro.github.io/for-elasticsearch-docs/docs/troubleshoot/#logstash
+output {
+  elasticsearch {
+    hosts => ['https://{{ fqdn }}:9200']
+    index => "logstash{{ '-' + user.tenant | replace('.', '_') }}-%{+YYYY.MM.dd}"
+    user => '{{ user.user }}_{{ user.tenant | replace('.', '_') }}'
+    password => "{{ user.password }}"
+    ssl => true
+    ssl_certificate_verification => true
+    cacert => '{{ elk_stack_certs }}/localCA.pem'
+    ilm_enabled => false
+  }
+}
+{% endif %}
+{% endif %}
+{% endfor %}

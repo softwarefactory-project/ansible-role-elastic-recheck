@@ -1,0 +1,29 @@
+---
+- name: Configure indexes
+  template:
+    src: indexer.conf.j2
+    dest: /etc/logstash/conf.d/{{ item }}.conf
+    mode: "0644"
+    owner: logstash
+    group: logstash
+
+- name: Add delete-indices file
+  template:
+    src: delete_old_indices.yml.j2
+    dest: /etc/logstash/curator.d/delete_old_indices_{{ item }}.yml
+
+- name: Add crontab entry for pruning old indices
+  cron:
+    name: "Delete old logstash indexes for {{ item }}"
+    minute: "{{ 60 | random }}"
+    hour: "{{ 24 | random }}"
+    day: '*'
+    job: "/bin/curator --config /etc/logstash/curator.d/curator_{{ item }}.yml /etc/logstash/curator.d/delete_old_indices_{{ item }}.yml"
+
+- name: Add curator configuration
+  template:
+    src: curator.yml.j2
+    dest: /etc/logstash/curator.d/curator_{{ item }}.yml
+    owner: logstash
+    group: logstash
+    mode: "0644"

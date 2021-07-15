@@ -1,0 +1,20 @@
+---
+{% for user in users %}
+{% if 'role' in user and 'password' in user %}
+{% if user.role == 'curator' and user.tenant | replace('.', '_') == item %}
+client:
+  hosts:
+    - https://{{ fqdn }}:9200
+  timeout: 30
+  use_ssl: True
+  ssl_no_validate: False
+  http_auth: {{ user.user }}_{{ user.tenant | replace('.', '_') }}:{{ user.password }}
+  certificate: '{{ elk_stack_certs }}/localCA.pem'
+
+logging:
+  loglevel: INFO
+  logformat: default
+  blacklist: ['elasticsearch', 'urllib3']
+{% endif %}
+{% endif %}
+{% endfor %}

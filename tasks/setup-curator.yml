@@ -1,0 +1,7 @@
+---
+- name: Install Curator package
+  yum:
+    name: elasticsearch-curator
+    state: present
+    disablerepo: "*"
+    enablerepo: "curator-5"
