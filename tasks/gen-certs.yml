@@ -3,7 +3,7 @@
 - name: Create cert dir
   file:
     path: "{{ elk_stack_certs }}"
-    owner: root
+    owner: elasticsearch
     group: elasticsearch
     state: directory
 
@@ -55,7 +55,7 @@
 
     - name: Take elasticsearch subject
       shell: |
-        openssl x509 -subject -nameopt RFC2253 -noout -in {{ elk_stack_certs }}/elasticsearch-admin.crt | sed 's/subject= //g'
+        openssl x509 -subject -nameopt RFC2253 -noout -in {{ elk_stack_certs }}/elasticsearch-admin.crt | sed 's/subject= //g' | sed 's/subject=//g'
       register: elk_cert_subject
 
     - name: Remove demo certs before restart
@@ -80,3 +80,11 @@
 
     - name: Trust generated cert
       command: update-ca-trust
+
+    - name: Set permissions to certs
+      file:
+        path: "{{ elk_stack_certs }}"
+        owner: elasticsearch
+        group: elasticsearch
+        recurse: true
+        state: directory
