@@ -1,0 +1,13 @@
+---
+- name: Setup autologin with basic
+  block:
+    - name: Gen plain basicauth
+      set_fact:
+        "{{ item.user }}_{{ item.tenant | replace('.', '_') }}_plain": "{{ item.user }}_{{ item.tenant | replace('.', '_') }}:{{ item.password }}"
+      no_log: true
+
+    - name: Encode plain basicauth
+      set_fact:
+        "{{ item.user }}_{{ item.tenant | replace('.', '_') }}_basicauth": "{{ vars[ item.user + '_' + item.tenant | replace('.', '_') + '_plain' ] | b64encode }}"
+      no_log: true
+  when: item.autologin | lower == 'basic'

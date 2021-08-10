@@ -15,6 +15,17 @@
     group: root
   register: _httpd_conf
 
+- name: Generate kibana autologin location
+  template:
+    src: kibana_autologin.conf.j2
+    dest: /etc/httpd/conf.d/kibana_autologin_{{ item['tenant'] | replace('.', '_') }}.conf
+    mode: '0444'
+    owner: root
+    group: root
+  loop: "{{ users | selectattr('autologin', 'defined') | list }}"
+  register: _kibana_autologin_conf
+  no_log: True
+
 - name: Remove welcome page
   file:
     path: /etc/httpd/conf.d/welcome.conf
@@ -31,4 +42,4 @@
     name: httpd
     state: restarted
     enabled: true
-  when: _httpd_conf.changed
+  when: _httpd_conf.changed or _kibana_autologin_conf.changed

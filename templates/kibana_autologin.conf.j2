@@ -1,0 +1,29 @@
+# NOTE: Can not enable authorization via HTTP form and with injecting
+# http header to the location: /analytics even when added condition
+# to remove headers when page is e.g. /analytics/app/login.
+# In that case, if someone will go to /analytics_autologin,
+# authorization header will be injected, then Kibana will automatically
+# redirect to the /analytics location.
+
+# Check if e.g.: kibana_sftests_com_basicauth is available in generated
+# vars.
+<Location "/{{ item.tenant | replace('.', '_') }}_autologin">
+    # Common settings for Basic/JWT auth
+    RequestHeader set "Host" "{{ fqdn }}"
+
+    # ip address of kibana_host
+    RequestHeader set "X-Forwarded-For" "{{ fqdn }}"
+    RequestHeader set "X-Forwarded-Host" "{{ fqdn }}"
+
+{% if item['autologin'] | lower == 'basic' %}
+    # Basic auth
+    RequestHeader set "Authorization" "Basic {{ vars[item.user + '_' + item.tenant | replace('.', '_') + '_basicauth' ] }}"
+{% endif %}
+
+    ProxyPass http://{{ ansible_default_ipv4.address }}:5601
+    ProxyPassReverse http://{{ ansible_default_ipv4.address }}:5601
+
+    RewriteEngine on
+    RewriteCond %{QUERY_STRING} ^$
+    RewriteRule "/{{ item.tenant | replace('.', '_') }}_autologin/" / [L]
+</Location>

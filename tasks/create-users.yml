@@ -2,16 +2,22 @@
 - name: Generate facts - internal users
   include_tasks: gen-user-pass.yml
   loop: "{{ internal_users }}"
-  no_log: False
+  no_log: True
   vars:
     is_internal_user: true
 
 - name: Generate facts
   include_tasks: gen-user-pass.yml
   loop: "{{ users }}"
-  no_log: False
+  no_log: True
   vars:
     is_internal_user: false
+
+- name: Generate Kibana autologin basic auth credentials
+  include_tasks: kibana_autologin.yml
+  loop: "{{ users | selectattr('autologin', 'defined') | list }}"
+  register: _kibana_autologin_conf
+  no_log: True
 
 - name: Get elasticsearch tenant list
   set_fact:
