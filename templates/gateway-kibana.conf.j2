@@ -7,12 +7,16 @@
     SSLProxyCheckPeerExpire off
 
     <Location "/">
-        ProxyPass http://{{ ansible_default_ipv4.address }}:5601
-        ProxyPassReverse http://{{ ansible_default_ipv4.address }}:5601
+        RedirectMatch ^/$ http://{{ fqdn }}/analytics/
+    </Location>
+
+    <Location "/analytics">
+        ProxyPass http://{{ fqdn }}:5601
+        ProxyPassReverse http://{{ fqdn }}:5601
     </Location>
 
     <Location /elasticsearch>
-        ProxyPass https://{{ ansible_default_ipv4.address }}:9200
-        ProxyPassReverse https://{{ ansible_default_ipv4.address }}:9200
+        ProxyPass https://{{ fqdn }}:9200
+        ProxyPassReverse https://{{ fqdn }}:9200
     </Location>
 </IfModule>

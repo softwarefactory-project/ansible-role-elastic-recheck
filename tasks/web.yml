@@ -20,6 +20,12 @@
     path: /etc/httpd/conf.d/welcome.conf
     state: absent
 
+- name: Set proper sebool
+  seboolean:
+    name: httpd_can_network_connect
+    state: true
+    persistent: true
+
 - name: Restart httpd service if necessary
   service:
     name: httpd
