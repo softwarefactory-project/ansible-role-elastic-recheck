@@ -32,17 +32,19 @@ on single machine:
         password: "admin"
         tenant: "sftests.com"
       - user: "logstash"
-        role: "admin"
+        role: "logstash"
         password: "logstash"
         tenant: "sftests.com"
+        input_port: 9998
       - user: "curator"
-        role: "admin"
+        role: "curator"
         password: "curator"
         tenant: "sftests.com"
       - user: "kibana"
         role: "readonly"
         password: "kibana"
         tenant: "sftests.com"
+        autologin: "basic"
       - user: "zuul"
         role: "admin"
         password: "zuul"
@@ -132,9 +134,19 @@ external_elasticsearch:
     kibana_sftests_com:
       password: kibana
       role: readonly
+
+logstash:
+  host: elasticsearch-host-2
+  port: 9999
+
+kibana:
+  readonly_user_autologin: Basic
+  host_url: http://elasticsearch-host-2:5601
 ```
 
 Where:
+
+* in external_elasticsearch:
 - `host` - define Elasticsearch API url
 - `cacert_path` - CA authority cert that would be verified by Logstash on start
 - `suffix` - the tenant name; it would be used by Logstash to configure
@@ -148,6 +160,20 @@ Where:
             for the user. So far, the `kibanaserver` user have very specific
             configuration and the `ansible-role-elastic-recheck` role is not
             configuring it.
+
+* in logstash:
+- `host` - the logstash host which will get metrics from e.g.: gearman worker.
+- `port` - port on which logstash service will listen.
+
+* in kibana:
+- readonly_user_autologin - if `Basic` is set it means that there will created
+                            a special location in Apache2 config, that will
+                            inject authentication header, so user don't need
+                            to fill login form.
+                            Alternative options: `None`, `JWT`.
+                            NOTE: this role is only supporting `Basic`
+                            parameter.
+- host_url - the Kibana service endpoint.
 
 Before you run the `sfconfig` tool, remember to add the external elasticsearch
 fqdn into the network - static_hostnames, for example:

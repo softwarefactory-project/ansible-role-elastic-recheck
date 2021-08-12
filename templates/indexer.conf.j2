@@ -4,7 +4,7 @@
 input {
   tcp {
     host => "{{ logstash_host | default(fqdn) }}"
-    port => "{{ logstash_input_port | default('9999') }}"
+    port => "{{ user.input_port if 'input_port' in user else '9999' }}"
     codec => json_lines {}
     type => "zuul"
   }

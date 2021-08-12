@@ -6,7 +6,6 @@ opendistro_version: 1.13.1
 logstash_stack_version: 7
 logstash_sub_version: 10.2
 logstash_retention_days: 7
-logstash_input_port: '9999'
 
 # NOTE: some packages like curator are availble in softwarefactory repo.
 sfrelease_package: https://softwarefactory-project.io/repos/sf-release-3.6.rpm
