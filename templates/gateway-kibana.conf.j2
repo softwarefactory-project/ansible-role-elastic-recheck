@@ -6,12 +6,6 @@
     SSLProxyCheckPeerName off
     SSLProxyCheckPeerExpire off
 
-{% for user in users %}
-{% if 'autologin' in user and user['autologin'] | lower == 'basic' %}
-    Include /etc/httpd/conf.d/kibana_autologin_{{ user['tenant'] | replace('.', '_') }}.conf
-{% endif %}
-{% endfor %}
-
     <Location "/">
         RedirectMatch ^/$ http://{{ fqdn }}/analytics/
     </Location>

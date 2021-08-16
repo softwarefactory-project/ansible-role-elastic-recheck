@@ -15,7 +15,7 @@
     RequestHeader set "X-Forwarded-For" "{{ fqdn }}"
     RequestHeader set "X-Forwarded-Host" "{{ fqdn }}"
 
-{% if item['autologin'] | lower == 'basic' %}
+{% if item.tenant in tenant_configuration and 'kibana_autologin' in tenant_configuration[item.tenant] and tenant_configuration[item.tenant]['kibana_autologin'] | lower == 'basic' %}
     # Basic auth
     RequestHeader set "Authorization" "Basic {{ vars[item.user + '_' + item.tenant | replace('.', '_') + '_basicauth' ] }}"
 {% endif %}

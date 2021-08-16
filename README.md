@@ -19,6 +19,10 @@ on single machine:
 - host: somehost
   become: true
   vars:
+    tenant_configuration:
+      sftests.com:
+        logstash_input_port: 9998
+        kibana_autologin: "basic"
     internal_users:
       - user: "admin"
         role: "admin"
@@ -35,7 +39,6 @@ on single machine:
         role: "logstash"
         password: "logstash"
         tenant: "sftests.com"
-        input_port: 9998
       - user: "curator"
         role: "curator"
         password: "curator"
@@ -44,7 +47,6 @@ on single machine:
         role: "readonly"
         password: "kibana"
         tenant: "sftests.com"
-        autologin: "basic"
       - user: "zuul"
         role: "admin"
         password: "zuul"

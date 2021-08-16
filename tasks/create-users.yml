@@ -15,7 +15,7 @@
 
 - name: Generate Kibana autologin basic auth credentials
   include_tasks: kibana_autologin.yml
-  loop: "{{ users | selectattr('autologin', 'defined') | list }}"
+  loop: "{{ users | selectattr('role', 'equalto', 'readonly') | list }}"
   register: _kibana_autologin_conf
   no_log: True
 
