@@ -1,54 +1,24 @@
 ---
-- name: Configure kibana
-  lineinfile:
-    dest: /etc/kibana/kibana.yml
-    regexp: '^#?{{ item.regexp }}.*'
-    line: '{{ item.line }}'
-    create: '{{ item.create | default(true) }}'
-  loop:
-    - regexp: 'elasticsearch.hosts:'
-      line: "elasticsearch.hosts: https://{{ ansible_default_ipv4.address }}:9200"
-    - regexp: 'server.basePath'
-      line: 'server.basePath: "/analytics"'
-    - regexp: 'server.host'
-      line: "server.host: {{ ansible_default_ipv4.address }}"
-    - regexp: 'telemetry.enabled'
-      line: 'telemetry.enabled: false'
-    - regexp: 'opendistro_security.multitenancy.tenants.enable_private'
-      line: 'opendistro_security.multitenancy.tenants.enable_private: false'
-    - regexp: 'opendistro_security.multitenancy.enabled'
-      line: 'opendistro_security.multitenancy.enabled: true'
-    - regexp: 'opendistro_security.multitenancy.tenants.preferred'
-      line: 'opendistro_security.multitenancy.tenants.preferred: [ "{{ elasticsearch_tenants }}" ]'
-    - regexp: 'opendistro_security.multitenancy.enable_filter'
-      line: 'opendistro_security.multitenancy.enable_filter: true'
-    - regexp: 'opendistro_security.multitenancy.tenants.enable_global'
-      line: 'opendistro_security.multitenancy.tenants.enable_global: false'
-    # FIXME: move hardcoded kibanaserver user to dynamic configuration
-    - regexp: 'elasticsearch.username'
-      line: 'elasticsearch.username: kibanaserver'
-    - regexp: 'elasticsearch.password'
-      line: 'elasticsearch.password: {{ kibanaserver }}'
-    # FIXME
-    - regexp: 'elasticsearch.ssl.verificationMode'
-      line: 'elasticsearch.ssl.verificationMode: none'
-    # Configure Kibana login screen
-    - regexp: 'opendistro_security.basicauth.login.title'
-      line: 'opendistro_security.basicauth.login.title: "The Software Factory Elasticsearch"'
-    - regexp: 'opendistro_security.basicauth.login.subtitle'
-      line: 'opendistro_security.basicauth.login.subtitle: "{{ kibana_loginscreen_text }}"'
-  register: _kibana_conf
-  no_log: true
+- name: Create required directory
+  file:
+    path: /etc/opensearch
+    state: directory
+    mode: '0777'
+    owner: "{{ elk_uid }}"
+    group: "{{ elk_gid }}"
 
-- name: Remove default route
-  lineinfile:
-    dest: /etc/kibana/kibana.yml
-    regexp: '^#?server.defaultRoute.*'
-    state: absent
+- name: Configure Kibana
+  template:
+    src: kibana_config.yml.j2
+    dest: "{{ kibana_config_path }}"
+    mode: '0777'
+  register: _kibana_conf
+  no_log: True
 
 - name: Restart service if necessary
   service:
-    name: kibana
+    name: "{{ 'opensearch-dashboards' if elasticsearch_distro | lower == 'opensearch' else 'kibana' }}"
     state: restarted
     enabled: true
+  ignore_errors: "{{ true if elasticsearch_distro | lower == 'opensearch' else false }}"
   when: _kibana_conf.changed

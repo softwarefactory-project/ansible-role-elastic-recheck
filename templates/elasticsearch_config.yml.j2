@@ -1,0 +1,35 @@
+---
+cluster.name: {{ fqdn | replace('.', '_') }}
+node.name: {{ inventory_hostname }}
+path.data: {{ '/var/lib/elasticsearch' if elasticsearch_distro | lower == 'opendistro' else '/usr/share/opensearch/data' }}
+path.logs: {{ '/var/log/elasticsearch' if elasticsearch_distro | lower == 'opendistro' else '/var/log/opensearch' }}
+network.host: {{ ansible_default_ipv4.address }}
+http.port: 9200
+
+{% if not cluster_role %}
+discovery.type: single-node
+node.master: true
+{% endif %}
+
+cluster.routing.allocation.disk.threshold_enabled: false
+node.max_local_storage_nodes: 3
+
+{{ elk_settings_prefix }}.ssl.transport.enforce_hostname_verification: false
+{{ elk_settings_prefix }}.ssl.http.enabled: true
+{{ elk_settings_prefix }}.allow_default_init_securityindex: true
+{{ elk_settings_prefix }}.allow_unsafe_democertificates: false
+
+{{ elk_settings_prefix }}.ssl.transport.pemcert_filepath: {{ elk_opensearch_config if elk_opensearch_config is defined else elk_stack_certs }}/elasticsearch-admin.crt
+{{ elk_settings_prefix }}.ssl.transport.pemkey_filepath: {{ elk_opensearch_config if elk_opensearch_config is defined else elk_stack_certs }}/elasticsearch-admin.key
+{{ elk_settings_prefix }}.ssl.transport.pemtrustedcas_filepath: {{ elk_opensearch_config if elk_opensearch_config is defined else elk_stack_certs }}/localCA.pem
+{{ elk_settings_prefix }}.ssl.http.pemcert_filepath: {{ elk_opensearch_config if elk_opensearch_config is defined else elk_stack_certs }}/elasticsearch-admin.crt
+{{ elk_settings_prefix }}.ssl.http.pemkey_filepath: {{ elk_opensearch_config if elk_opensearch_config is defined else elk_stack_certs }}/elasticsearch-admin.key
+{{ elk_settings_prefix }}.ssl.http.pemtrustedcas_filepath: {{ elk_opensearch_config if elk_opensearch_config is defined else elk_stack_certs }}/localCA.pem
+{{ elk_settings_prefix }}.authcz.admin_dn:
+  - {{ elk_cert_subject.stdout | default('CN=elasticsearch.sftests.com,O=ElasticsearchSoftwareFactory,L=WROCLAW,ST=DOLNOSLASKIE,C=PL') }}
+
+{{ elk_settings_prefix }}.audit.type: internal_elasticsearch
+{{ elk_settings_prefix }}.enable_snapshot_restore_privilege: true
+{{ elk_settings_prefix }}.check_snapshot_restore_write_privileges: true
+{{ elk_settings_prefix }}.restapi.roles_enabled: ["all_access", "security_rest_api_access"]
+{{ elk_settings_prefix }}.system_indices.enabled: true

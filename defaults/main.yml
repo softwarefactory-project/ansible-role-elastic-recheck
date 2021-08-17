@@ -1,11 +1,17 @@
 ---
 fqdn: elasticsearch.sftests.com
 java_home: /usr/lib/jvm/jre
-elk_stack_certs: /etc/elasticsearch/certs
 opendistro_version: 1.13.1
 logstash_stack_version: 7
 logstash_sub_version: 10.2
 logstash_retention_days: 7
+
+elasticsearch_distro: opensearch
+
+container_images:
+  # Customized image that include patch: https://github.com/opensearch-project/opensearch-build/pull/240
+  opensearch: quay.rdoproject.org/software-factory/opensearch:1.0.0-customized
+  opensearch-dashboards: quay.rdoproject.org/software-factory/opensearch-dashboards:1.0.0
 
 # NOTE: some packages like curator are availble in softwarefactory repo.
 sfrelease_package: https://softwarefactory-project.io/repos/sf-release-3.6.rpm
@@ -15,10 +21,9 @@ sfrelease_package: https://softwarefactory-project.io/repos/sf-release-3.6.rpm
 cluster_role: ''
 
 elasticsearch_maximum_heap_size: 512m
-elasticsearch_minimum_heap_size: 128m
+elasticsearch_minimum_heap_size: 512m
 
 opendistro_repos_name: elasticsearch-7.x,opendistroforelasticsearch-artifacts
-opendistro_plugin_dir: /usr/share/elasticsearch/plugins/opendistro_security
 opendistro_repos:
   - name: elasticsearch-7.x
     desc: Elasticsearch repository for 7.x packages

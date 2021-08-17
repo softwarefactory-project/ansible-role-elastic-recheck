@@ -1,4 +1,9 @@
 ---
+- name: Install bcrypt package
+  package:
+    name: httpd-tools
+    state: present
+
 - name: Generate facts - internal users
   include_tasks: gen-user-pass.yml
   loop: "{{ internal_users }}"
@@ -24,19 +29,42 @@
     elasticsearch_tenants: "{{ users | map(attribute='tenant') | unique | list | join(',') | replace('.', '_') }}"
     kibana_loginscreen_text: "{% for user in users %}{% if user['role'] == 'readonly' %}Tenant: {{ user['tenant'] }} user: {{ user['user'] + '_' + user['tenant'] | replace('.', '_') }} password: {{ user['password'] }}{% endif %}{% endfor %}"
 
-- name: Set the security plugin configuration
+- name: Set the security plugin configuration - opendistro
   template:
-    src: "{{ item }}.j2"
-    dest: "{{ opendistro_plugin_dir }}/securityconfig/{{ item }}"
+    src: "{{ elasticsearch_distro | lower }}/{{ item }}.j2"
+    dest: "{{ elk_plugin_dir }}/securityconfig/{{ item }}"
   loop:
     - internal_users.yml
     - tenants.yml
     - config.yml
     - roles.yml
     - roles_mapping.yml
+    - action_groups.yml
   notify: reconfigure security plugin
+  when: elasticsearch_distro | lower == 'opendistro'
+
+- name: Set the security plugin configuration - opensearch
+  template:
+    src: "{{ elasticsearch_distro | lower }}/{{ item }}.j2"
+    dest: "{{ elk_plugin_dir }}/{{ item }}"
+    mode: "0777"
+    owner: "{{ elk_uid }}"
+    group: "{{ elk_gid }}"
+  loop:
+    - internal_users.yml
+    - tenants.yml
+    - config.yml
+    - roles.yml
+    - roles_mapping.yml
+    - action_groups.yml
+    - nodes_dn.yml
+    - whitelist.yml
+  notify:
+    - reconfigure security plugin in containers
+  when: elasticsearch_distro | lower == 'opensearch'
 
 - name: Ensure that Elasticsearch service is running before reconfiguration
   systemd:
-    name: elasticsearch
+    name: "{{ 'opensearch' if elasticsearch_distro | lower == 'opensearch' else 'elasticsearch' }}"
     state: started
+  ignore_errors: "{{ true if elasticsearch_distro | lower == 'opensearch' else false }}"

@@ -1,0 +1,45 @@
+---
+# FIXME: if we provide fully opensearch.yml file, probably we don't need to add
+# some of the environment variables.
+# https://opensearch.org/docs/opensearch/install/docker-security/
+# NOTE: by default guide is recommending env variables:
+#      -e cluster.name={{ fqdn | replace('.', '_') }}a
+#      -e node.name={{ inventory_hostname }}
+#      -e discovery.seed_hosts={{ inventory_hostname }}
+#      -e cluster.initial_master_nodes={{ inventory_hostname }}
+# Those settings are done in opensearch.yml file. If you want to use that settings
+# comment: discovery.type: and plugins.security.audit.type in opensearch.yml file.
+# WARNING: it is important to use :z instead of :Z flag.
+- include_tasks: container-service.yml
+  vars:
+    pod_name: opensearch
+    pod_param: >
+      --net host
+      --pid host
+      -e DISABLE_INSTALL_DEMO_CONFIG=true
+      -e "OPENSEARCH_JAVA_OPTS=-Xms{{ elasticsearch_minimum_heap_size }} -Xmx{{ elasticsearch_maximum_heap_size }}"
+      -v {{ elk_data_dir }}:/usr/share/opensearch/data:z
+      -v {{ elk_log_dir }}:/var/log/opensearch:z
+      -v {{ elk_stack_certs }}/localCA.pem:{{ elk_opensearch_config }}/localCA.pem:Z
+      -v {{ elk_stack_certs }}/elasticsearch-admin.crt:{{ elk_opensearch_config }}/elasticsearch-admin.crt:Z
+      -v {{ elk_stack_certs }}/elasticsearch-admin.key:{{ elk_opensearch_config }}/elasticsearch-admin.key:Z
+      -v {{ elk_config_path }}:{{ elk_opensearch_config }}/opensearch.yml:z
+      -v {{ elk_plugin_dir }}/internal_users.yml:/usr/share/opensearch/plugins/opensearch-security/securityconfig/internal_users.yml:z
+      -v {{ elk_plugin_dir }}/roles_mapping.yml:/usr/share/opensearch/plugins/opensearch-security/securityconfig/roles_mapping.yml:z
+      -v {{ elk_plugin_dir }}/tenants.yml:/usr/share/opensearch/plugins/opensearch-security/securityconfig/tenants.yml:z
+      -v {{ elk_plugin_dir }}/roles.yml:/usr/share/opensearch/plugins/opensearch-security/securityconfig/roles.yml:z
+      -v {{ elk_plugin_dir }}/action_groups.yml:/usr/share/opensearch/plugins/opensearch-security/securityconfig/action_groups.yml:z
+      {{ container_images['opensearch'] }}
+
+# https://opensearch.org/docs/opensearch/install/docker#sample-docker-compose-file
+# NOTE: even when opensearch.hosts is set in opensearch_dashboards.yml file,
+# it is just ignored.
+- include_tasks: container-service.yml
+  vars:
+    pod_name: opensearch-dashboards
+    pod_param: >
+      --net host
+      --pid host
+      -e OPENSEARCH_HOSTS='["https://{{ ansible_default_ipv4.address }}:9200"]'
+      -v /etc/opensearch/opensearch_dashboards.yml:/usr/share/opensearch-dashboards/config/opensearch_dashboards.yml:z
+      {{ container_images['opensearch-dashboards'] }}

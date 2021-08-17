@@ -1,79 +1,59 @@
 ---
-- name: Configure common Elasticsearch settings
-  lineinfile:
-    dest: /etc/elasticsearch/elasticsearch.yml
-    regexp: '^#?{{ item.regexp }}.*'
-    line: '{{ item.line }}'
-    create: '{{ item.create | default(true) }}'
+# NOTE: /usr directory can not be mount inside the container.
+- name: Create directories for Opensearch
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ elk_uid }}"
+    group: "{{ elk_gid }}"
+    mode: "0777"
   loop:
-    - regexp: 'network.host:'
-      line: "network.host: {{ ansible_default_ipv4.address }}"
-    - regexp: 'cluster.name:'
-      line: "cluster.name: {{ fqdn | replace('.', '_') }}"
-    - regexp: 'node.name:'
-      line: "node.name: {{ inventory_hostname }}"
-    - regexp: 'http.port:'
-      line: 'http.port: 9200'
-    - regexp: '  - CN='
-      line: "  - {{ elk_cert_subject.stdout | default('CN=elasticsearch.sftests.com,O=ElasticsearchSoftwareFactory,L=WROCLAW,ST=DOLNOSLASKIE,C=PL') }}"
-      dest: /etc/elasticsearch/elasticsearch.yml
-    - regexp: 'opendistro_security.ssl.transport.pemcert_filepath:'
-      line: "opendistro_security.ssl.transport.pemcert_filepath: {{ elk_stack_certs }}/elasticsearch-admin.crt"
-      dest: /etc/elasticsearch/elasticsearch.yml
-    - regexp: 'opendistro_security.ssl.transport.pemkey_filepath'
-      line: "opendistro_security.ssl.transport.pemkey_filepath: {{ elk_stack_certs }}/elasticsearch-admin.key"
-      dest: /etc/elasticsearch/elasticsearch.yml
-    - regexp: 'opendistro_security.ssl.transport.pemtrustedcas_filepath'
-      line: "opendistro_security.ssl.transport.pemtrustedcas_filepath: {{ elk_stack_certs }}/localCA.pem"
-      dest: /etc/elasticsearch/elasticsearch.yml
-    - regexp: 'opendistro_security.ssl.http.pemcert_filepath'
-      line: "opendistro_security.ssl.http.pemcert_filepath: {{ elk_stack_certs }}/elasticsearch-admin.crt"
-      dest: /etc/elasticsearch/elasticsearch.yml
-    - regexp: 'opendistro_security.ssl.http.pemkey_filepath'
-      line: "opendistro_security.ssl.http.pemkey_filepath: {{ elk_stack_certs }}/elasticsearch-admin.key"
-      dest: /etc/elasticsearch/elasticsearch.yml
-    - regexp: 'opendistro_security.ssl.http.pemtrustedcas_filepath'
-      line: "opendistro_security.ssl.http.pemtrustedcas_filepath: {{ elk_stack_certs }}/localCA.pem"
-      dest: /etc/elasticsearch/elasticsearch.yml
-    - regexp: '########'
-      line: ''
-      dest: /etc/elasticsearch/elasticsearch.yml
-    - regexp: 'opendistro_security.allow_unsafe_democertificates'
-      line: 'opendistro_security.allow_unsafe_democertificates: false'
-      dest: /etc/elasticsearch/elasticsearch.yml
+    - "/etc/opensearch"
+    - "{{ elk_data_dir }}"
+    - "{{ elk_log_dir}}"
+  when: elasticsearch_distro | lower == 'opensearch'
+
+- name: Create Elasticsearch config file
+  template:
+    src: templates/elasticsearch_config.yml.j2
+    dest: "{{ elk_config_path }}"
   register: _common_config
 
 - name: Configure jvm Elasticsearch settings
   lineinfile:
     dest: /etc/elasticsearch/jvm.options
-    regexp: '^#?{{ item.regexp }}.*'
-    line: '{{ item.line }}'
-    create: '{{ item.create | default(true) }}'
+    regexp: "^#?{{ item.regexp }}.*"
+    line: "{{ item.line }}"
+    create: "{{ item.create | default(true) }}"
   loop:
-    - regexp: '-Xms'
-      line: '-Xms{{ elasticsearch_minimum_heap_size }}'
+    - regexp: "-Xms"
+      line: "-Xms{{ elasticsearch_minimum_heap_size }}"
       dest: /etc/elasticsearch/jvm.options
-    - regexp: '-Xmx'
-      line: '-Xmx{{ elasticsearch_maximum_heap_size }}'
+    - regexp: "-Xmx"
+      line: "-Xmx{{ elasticsearch_maximum_heap_size }}"
       dest: /etc/elasticsearch/jvm.options
+  when: elasticsearch_distro | lower == 'opendistro'
 
-- name: Configure cluster role settings
-  lineinfile:
-    dest: /etc/elasticsearch/elasticsearch.yml
-    regexp: '^#?{{ item.regexp }}.*'
-    line: '{{ item.line }}'
-    create: '{{ item.create | default(true) }}'
-  loop:
-    - regexp: 'discovery.type'
-      line: "discovery.type: single-node"
-    - regexp: 'node.master:'
-      line: 'node.master: true'
-  when: not cluster_role
-  register: _cluster_role_config
+- name: Set permissions for opensearch config file
+  file:
+    path: "{{ elk_config_path }}"
+    owner: "{{ elk_uid }}"
+    group: "{{ elk_gid }}"
+    mode: "0777"
+  when: elasticsearch_distro | lower == 'opensearch'
+
+# https://opensearch.org/docs/opensearch/install/important-settings/
+- name: Set important settings for Opensearch container
+  sysctl:
+    name: vm.max_map_count
+    value: '262144'
+    state: present
+    reload: true
 
 - name: Restart service if necessary
   service:
     name: elasticsearch
     state: restarted
     enabled: true
-  when: _common_config.changed or _cluster_role_config.changed
+  ignore_errors: "{{ true if elasticsearch_distro | lower == 'opensearch' else false }}"
+  when: _common_config.changed

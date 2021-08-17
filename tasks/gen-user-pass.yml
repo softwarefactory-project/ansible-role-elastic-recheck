@@ -1,16 +1,13 @@
 ---
 - name: "Generate user"
   block:
-    - name: Generate hash for user
-      command: "{{ opendistro_plugin_dir }}/tools/hash.sh -p{{ item.password }}"
-      register: _generated_hash
-      environment:
-        JAVA_HOME: "{{ java_home }}"
-
+    # NOTE: move bcrypt password hash to htpasswd, because it was
+    # not working correctly with Opensearch when container was not
+    # running for some time.
     - name: Set Elasticsearch users as a fact - internal user
       set_fact:
         "{{ item.user }}": "{{ item.password }}"
-        "{{ item.user }}_hash": "{{ _generated_hash.stdout }}"
+        "{{ item.user }}_hash": "{{  item.password | password_hash('bcrypt', rounds=12) }}"
       when: is_internal_user
 
     # NOTE: for internal users, it would be: elasticsearch_admin and
@@ -19,9 +16,9 @@
     - name: Set Elasticsearch users as a fact
       set_fact:
         "elasticsearch_{{ item.user }}_{{ item.tenant | replace('.', '_') }}": "{{ item.password }}"
-        "elasticsearch_{{ item.user }}_{{ item.tenant | replace('.', '_') }}_hash": "{{ _generated_hash.stdout }}"
+        "elasticsearch_{{ item.user }}_{{ item.tenant | replace('.', '_') }}_hash": "{{ item.password | password_hash('bcrypt', rounds=12) }}"
       when: not is_internal_user
   when:
     - "'password' in item"
     - "'user' in item"
-  no_log: False
+  no_log: True
