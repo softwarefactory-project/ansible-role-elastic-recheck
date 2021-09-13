@@ -9,8 +9,8 @@
     - "logstash-oss-{{ logstash_stack_version }}.{{ logstash_sub_version }}"
 
 - name: Add logstash user to elasticsearch group
-  become: true
   user:
     name: logstash
     groups: elasticsearch
     append: true
+  when: elasticsearch_distro | lower == 'opendistro'

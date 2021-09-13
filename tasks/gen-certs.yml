@@ -1,11 +1,21 @@
 ---
 # Base on:  https://opendistro.github.io/for-elasticsearch-docs/docs/security/configuration/generate-certificates/#generate-certificates
-- name: Create cert dir
+- name: Create cert dir - opendistro
   file:
     path: "{{ elk_stack_certs }}"
     owner: elasticsearch
     group: elasticsearch
     state: directory
+  when: elasticsearch_distro | lower == 'opendistro'
+
+- name: Create cert dir - opensearch
+  file:
+    path: "{{ elk_stack_certs }}"
+    owner: "{{ elk_uid }}"
+    group: "{{ elk_gid }}"
+    state: directory
+    mode: '0777'
+  when: elasticsearch_distro | lower == 'opensearch'
 
 - name: Check if CA certs was done earlier
   stat:
@@ -27,7 +37,9 @@
           -key {{ elk_stack_certs }}/localCA-key.pem \
           -out {{ elk_stack_certs }}/localCA.pem
       register: _elk_ca_cert
-      notify: reconfigure security plugin
+      notify:
+        - reconfigure security plugin
+        - reconfigure security plugin in containers
   when: not _ca_cert.stat.exists
 
 - name: Generate certs for Elasticsearch
@@ -51,12 +63,42 @@
           -CAcreateserial -sha256 -out {{ elk_stack_certs }}/elasticsearch-admin.crt
       register: _elk_elasticsearch_cert
       when: not _elk_admin_cert.stat.exists
-      notify: reconfigure security plugin
+      notify:
+        - reconfigure security plugin
+        - reconfigure security plugin in containers
 
-    - name: Take elasticsearch subject
+    - name: Check if Elasticsearch client certs was done earlier
+      stat:
+        path: "{{ elk_stack_certs }}/elasticsearch-client.crt"
+      register: _elk_client_cert
+
+    - name: Generate client certs
+      shell: |
+        openssl genrsa -out {{ elk_stack_certs }}/elasticsearch-client-key-temp.pem 2048 && \
+        openssl pkcs8 -inform PEM -outform PEM -in {{ elk_stack_certs }}/elasticsearch-client-key-temp.pem \
+          -topk8 -nocrypt -v1 PBE-SHA1-3DES -out {{ elk_stack_certs }}/elasticsearch-client.key && \
+        openssl req -new -key {{ elk_stack_certs }}/elasticsearch-client.key \
+          -subj "/C=PL/ST=WROCLAW/L=WROCLAW/O=ElasticsearchSoftwareFactory/CN={{ fqdn }}" \
+          -out {{ elk_stack_certs }}/elasticsearch-client.csr && \
+        openssl x509 -req -in {{ elk_stack_certs }}/elasticsearch-client.csr \
+          -CA {{ elk_stack_certs }}/localCA.pem -days 3650 \
+          -CAkey {{ elk_stack_certs }}/localCA-key.pem \
+          -CAcreateserial -sha256 -out {{ elk_stack_certs }}/elasticsearch-client.crt
+      register: _elk_elasticsearch_cert
+      when: not _elk_client_cert.stat.exists
+      notify:
+        - reconfigure security plugin
+        - reconfigure security plugin in containers
+
+    - name: Take elasticsearch subject - admin
       shell: |
         openssl x509 -subject -nameopt RFC2253 -noout -in {{ elk_stack_certs }}/elasticsearch-admin.crt | sed 's/subject= //g' | sed 's/subject=//g'
       register: elk_cert_subject
+
+    - name: Take elasticsearch subject - client
+      shell: |
+        openssl x509 -subject -nameopt RFC2253 -noout -in {{ elk_stack_certs }}/elasticsearch-client.crt | sed 's/subject= //g' | sed 's/subject=//g'
+      register: elk_cert_subject_client
 
     - name: Remove demo certs before restart
       file:
@@ -68,10 +110,11 @@
         - kirk-key.pem
         - kirk.pem
         - root-ca.pem
+      when: elasticsearch_distro | lower == 'opendistro'
 
     - name: Copy CA cert
       copy:
-        src: /etc/elasticsearch/certs/localCA.pem
+        src: "{{ elk_stack_certs }}/localCA.pem"
         dest: /etc/pki/ca-trust/source/anchors/localCA.pem
         mode: '0644'
         owner: root
@@ -81,10 +124,21 @@
     - name: Trust generated cert
       command: update-ca-trust
 
-    - name: Set permissions to certs
-      file:
-        path: "{{ elk_stack_certs }}"
-        owner: elasticsearch
-        group: elasticsearch
-        recurse: true
-        state: directory
+- name: Set permissions to certs - opendistro
+  file:
+    path: "{{ elk_stack_certs }}"
+    owner: elasticsearch
+    group: elasticsearch
+    recurse: true
+    state: directory
+  when: elasticsearch_distro | lower == 'opendistro'
+
+- name: Set permissions to certs - opensearch
+  file:
+    path: "{{ elk_stack_certs }}"
+    owner: "{{ elk_uid }}"
+    group: "{{ elk_gid }}"
+    mode: '0777'
+    recurse: true
+    state: directory
+  when: elasticsearch_distro | lower == 'opensearch'

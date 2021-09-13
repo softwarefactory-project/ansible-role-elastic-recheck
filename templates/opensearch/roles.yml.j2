@@ -1,0 +1,209 @@
+---
+_meta:
+  type: "roles"
+  config_version: 2
+
+#### FROM Opensearch container
+
+# Restrict users so they can only view visualization and dashboard on OpenSearchDashboards
+kibana_read_only:
+  reserved: true
+
+# The security REST API access role is used to assign specific users access to change the security settings through the REST API.
+security_rest_api_access:
+  reserved: true
+
+# Allows users to view monitors, destinations and alerts
+alerting_read_access:
+  reserved: true
+  cluster_permissions:
+    - 'cluster:admin/opendistro/alerting/alerts/get'
+    - 'cluster:admin/opendistro/alerting/destination/get'
+    - 'cluster:admin/opendistro/alerting/monitor/get'
+    - 'cluster:admin/opendistro/alerting/monitor/search'
+
+# Allows users to view and acknowledge alerts
+alerting_ack_alerts:
+  reserved: true
+  cluster_permissions:
+    - 'cluster:admin/opendistro/alerting/alerts/*'
+
+# Allows users to use all alerting functionality
+alerting_full_access:
+  reserved: true
+  cluster_permissions:
+    - 'cluster_monitor'
+    - 'cluster:admin/opendistro/alerting/*'
+  index_permissions:
+    - index_patterns:
+        - '*'
+      allowed_actions:
+        - 'indices_monitor'
+        - 'indices:admin/aliases/get'
+        - 'indices:admin/mappings/get'
+
+# Allow users to read Anomaly Detection detectors and results
+anomaly_read_access:
+  reserved: true
+  cluster_permissions:
+    - 'cluster:admin/opendistro/ad/detector/info'
+    - 'cluster:admin/opendistro/ad/detector/search'
+    - 'cluster:admin/opendistro/ad/detectors/get'
+    - 'cluster:admin/opendistro/ad/result/search'
+    - 'cluster:admin/opendistro/ad/tasks/search'
+
+# Allows users to use all Anomaly Detection functionality
+anomaly_full_access:
+  reserved: true
+  cluster_permissions:
+    - 'cluster_monitor'
+    - 'cluster:admin/opendistro/ad/*'
+  index_permissions:
+    - index_patterns:
+        - '*'
+      allowed_actions:
+        - 'indices_monitor'
+        - 'indices:admin/aliases/get'
+        - 'indices:admin/mappings/get'
+
+# Allows users to read Notebooks
+notebooks_read_access:
+  reserved: true
+  cluster_permissions:
+    - 'cluster:admin/opendistro/notebooks/list'
+    - 'cluster:admin/opendistro/notebooks/get'
+
+# Allows users to all Notebooks functionality
+notebooks_full_access:
+  reserved: true
+  cluster_permissions:
+    - 'cluster:admin/opendistro/notebooks/create'
+    - 'cluster:admin/opendistro/notebooks/update'
+    - 'cluster:admin/opendistro/notebooks/delete'
+    - 'cluster:admin/opendistro/notebooks/get'
+    - 'cluster:admin/opendistro/notebooks/list'
+
+# Allows users to read and download Reports
+reports_instances_read_access:
+  reserved: true
+  cluster_permissions:
+    - 'cluster:admin/opendistro/reports/instance/list'
+    - 'cluster:admin/opendistro/reports/instance/get'
+    - 'cluster:admin/opendistro/reports/menu/download'
+
+# Allows users to read and download Reports and Report-definitions
+reports_read_access:
+  reserved: true
+  cluster_permissions:
+    - 'cluster:admin/opendistro/reports/definition/get'
+    - 'cluster:admin/opendistro/reports/definition/list'
+    - 'cluster:admin/opendistro/reports/instance/list'
+    - 'cluster:admin/opendistro/reports/instance/get'
+    - 'cluster:admin/opendistro/reports/menu/download'
+
+# Allows users to all Reports functionality
+reports_full_access:
+  reserved: true
+  cluster_permissions:
+    - 'cluster:admin/opendistro/reports/definition/create'
+    - 'cluster:admin/opendistro/reports/definition/update'
+    - 'cluster:admin/opendistro/reports/definition/on_demand'
+    - 'cluster:admin/opendistro/reports/definition/delete'
+    - 'cluster:admin/opendistro/reports/definition/get'
+    - 'cluster:admin/opendistro/reports/definition/list'
+    - 'cluster:admin/opendistro/reports/instance/list'
+    - 'cluster:admin/opendistro/reports/instance/get'
+    - 'cluster:admin/opendistro/reports/menu/download'
+
+# Allows users to use all asynchronous-search functionality
+asynchronous_search_full_access:
+  reserved: true
+  cluster_permissions:
+    - 'cluster:admin/opendistro/asynchronous_search/*'
+  index_permissions:
+    - index_patterns:
+        - '*'
+      allowed_actions:
+        - 'indices:data/read/search*'
+
+# Allows users to read stored asynchronous-search results
+asynchronous_search_read_access:
+  reserved: true
+  cluster_permissions:
+    - 'cluster:admin/opendistro/asynchronous_search/get'
+
+### OUR CUSTOM RULES
+
+{% for user in users %}
+{% if 'role' in user and 'tenant' in user %}
+{% if user.role == 'readonly' %}
+kibana_viewer_{{ user.tenant | replace('.', '_') }}:
+  reserved: true
+  cluster_permissions:
+    - "cluster_composite_ops_ro"
+  index_permissions:
+  - index_patterns:
+      - "?kibana*"
+      - "?kibana"
+      - "logstash-{{ user.tenant | replace('.', '_') }}-*"
+      - "zuul-{{ user.tenant | replace('.', '_') }}.*"
+    allowed_actions:
+      - "read"
+      - "get"
+      - "search"
+      - "indices:data/write/update"
+      - "indices:data/write/index"
+      - "indices:data/write/bulk*"
+      - "indices:monitor/stats"
+      - "indices:monitor/recovery"
+  tenant_permissions:
+    - tenant_patterns:
+        - "{{ user.tenant | replace('.', '_') }}"
+      allowed_actions:
+        - "kibana_all_read"
+{% elif user.role == 'admin' %}
+# From static role:
+# https://github.com/opensearch-project/security/blob/main/src/main/resources/static_config/static_roles.yml
+# NOTE: without index_permissions set to "*", admin can not create
+# new index pattern.
+{{ user.user }}_{{ user.tenant | replace('.', '_') }}:
+  reserved: true
+  cluster_permissions:
+    - "*"
+  index_permissions:
+    - index_patterns:
+        - "*"
+      allowed_actions:
+        - "*"
+  tenant_permissions:
+    - tenant_patterns:
+        - "{{ user.tenant | replace('.', '_') }}"
+      allowed_actions:
+        - "kibana_all_write"
+{% elif user.role in ['curator', 'logstash' ] %}
+# From static role:
+# https://github.com/opensearch-project/security/blob/main/src/main/resources/static_config/static_roles.yml
+{{ user.user }}_{{ user.tenant | replace('.', '_') }}:
+  reserved: true
+  cluster_permissions:
+    - "cluster_monitor"
+    - "cluster_composite_ops"
+    - "indices:admin/template/get"
+    - "indices:admin/template/put"
+    - "cluster:admin/ingest/pipeline/put"
+    - "cluster:admin/ingest/pipeline/get"
+    - "indices:admin/create"
+  tenant_permissions:
+    - tenant_patterns:
+        - "{{ user.tenant | replace('.', '_') }}"
+      allowed_actions:
+        - "kibana_all_write"
+  index_permissions:
+    - index_patterns:
+        - "logstash-{{ user.tenant | replace('.', '_') }}-*"
+      allowed_actions:
+        - "crud"
+        - "create_index"
+{% endif %}
+{% endif %}
+{% endfor %}

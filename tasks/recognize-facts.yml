@@ -1,0 +1,29 @@
+---
+- name: Set facts helpers - opendistro
+  set_fact:
+    elk_settings_prefix: opendistro_security
+    elk_config_path: /etc/elasticsearch/elasticsearch.yml
+    elk_stack_certs: /etc/elasticsearch/certs
+    elk_plugin_dir: /usr/share/elasticsearch/plugins/opendistro_security
+    kibana_config_path: /etc/kibana/kibana.yml
+    kibana_settings_prefix: opendistro_security
+  when: elasticsearch_distro | lower == 'opendistro'
+
+- name: Set facts helpers - opensearch
+  set_fact:
+    elk_settings_prefix: plugins.security
+    elk_config_path: /etc/opensearch/opensearch.yml
+    elk_stack_certs: /etc/opensearch/certs
+    # NOTE: even if cert dir is properly set, java is raising an error
+    # java.security.AccessControlException: Access denied which is related to
+    # not sufficient permission to read /etc dir.
+    elk_opensearch_config: /usr/share/opensearch/config
+    elk_plugin_dir: /etc/opensearch
+    elk_data_dir: /mnt/opensearch/data
+    elk_log_dir: /mnt/opensearch/logs
+    elk_uid: "1000"
+    elk_gid: "1000"
+    kibana_config_path: /etc/opensearch/opensearch_dashboards.yml
+    kibana_settings_prefix: opensearch_security
+    logstash_http_port: '9601'
+  when: elasticsearch_distro | lower == 'opensearch'

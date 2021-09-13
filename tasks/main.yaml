@@ -1,4 +1,7 @@
 ---
+- name: Set proper facts
+  include_tasks: recognize-facts.yml
+
 - name: Configure mirrors
   include_tasks: configure-mirrors.yml
 
@@ -17,7 +20,7 @@
 - name: Generate certs
   include_tasks: gen-certs.yml
 
-- name: Configure Elasticsearch
+- name: Configure Elasticsearch on main host
   include_tasks: configure-elasticsearch-main.yml
 
 - name: Create users
@@ -25,6 +28,10 @@
 
 - name: Configure Kibana
   include_tasks: configure-kibana.yml
+
+- name: Configure container
+  include_tasks: configure-opensearch.yml
+  when: elasticsearch_distro | lower == 'opensearch'
 
 - name: Configure Logstash
   include_tasks: configure-logstash.yml

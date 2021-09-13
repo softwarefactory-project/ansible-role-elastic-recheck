@@ -12,9 +12,25 @@
 - name: Generate files for logstash and curator
   include_tasks: logstash-curator.yml
   loop: "{{ users | map(attribute='tenant') | unique | list | replace('.', '_') }}"
+  register: _logstash_indexes
+
+# NOTE: Change the logstash http port from 9600 to 9700,
+# because Opensearch Performance Analyzer is using port 9600,
+# so the opensearch container can not start when logstash is running.
+# https://opensearch.org/docs/opensearch/install/important-settings/
+- name: Change Logstash http port
+  lineinfile:
+    dest: /etc/logstash/logstash.yml
+    regexp: '^#?{{ item.regexp }}.*'
+    line: '{{ item.line }}'
+    create: '{{ item.create | default(true) }}'
+  loop:
+    - regexp: 'http.port:'
+      line: "http.port: {{ logstash_http_port }}"
+  register: _logstash_config
+  when: elasticsearch_distro | lower == 'opensearch'
 
 - name: Set permissions for logstash directory
-  become: true
   file:
     path: /etc/logstash
     state: directory
@@ -23,8 +39,8 @@
     recurse: true
 
 - name: Restart logstash service
-  become: true
   service:
-   name: logstash
-   state: restarted
-   enabled: true
+    name: logstash
+    state: restarted
+    enabled: true
+  when: _logstash_config.changed or _logstash_indexes.changed
