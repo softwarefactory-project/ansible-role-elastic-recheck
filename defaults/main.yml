@@ -20,6 +20,11 @@ sfrelease_package: https://softwarefactory-project.io/repos/sf-release-3.6.rpm
 # as a single node cluster.
 cluster_role: ''
 
+setup_ssl: false
+ssl_cert_file: /etc/letsencrypt/live/elasticsearch.sftests.com/cert.pem
+ssl_key_file: /etc/letsencrypt/live/elasticsearch.sftests.com/privkey.pem
+ssl_chain_file: /etc/letsencrypt/live/elasticsearch.sftests.com/chain.pem
+
 elasticsearch_maximum_heap_size: 512m
 elasticsearch_minimum_heap_size: 512m
 

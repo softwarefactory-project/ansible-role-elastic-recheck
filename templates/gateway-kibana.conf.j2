@@ -1,14 +1,38 @@
 <IfModule mod_proxy.c>
-    # Elasticsearch doew not accept http requests
     SSLProxyEngine on
     SSLProxyVerify none
     SSLProxyCheckPeerCN off
     SSLProxyCheckPeerName off
     SSLProxyCheckPeerExpire off
 
-    <Location "/">
-        RedirectMatch ^/$ http://{{ fqdn }}/analytics/
-    </Location>
+    <VirtualHost *:80>
+        ServerName {{ fqdn }}
+        HostnameLookups On
+        RewriteEngine On
+        DocumentRoot /var/www/html
+
+        <Location "/">
+            {% if setup_ssl %}
+            RedirectMatch ^/$ https://{{ fqdn }}/analytics/
+            {% else %}
+            RedirectMatch ^/$ http://{{ fqdn }}/analytics/
+            {% endif %}
+        </Location>
+    </VirtualHost>
+
+    {% if setup_ssl %}
+    <VirtualHost *:443>
+        ServerName {{ fqdn }}
+        HostnameLookups On
+        RewriteEngine On
+        DocumentRoot /var/www/html
+
+        SSLEngine on
+        SSLCertificateFile {{ ssl_cert_file }}
+        SSLCertificateChainFile {{ ssl_chain_file }}
+        SSLCertificateKeyFile {{ ssl_key_file }}
+    </VirtualHost>
+    {% endif %}
 
     <Location "/analytics">
         ProxyPass http://{{ fqdn }}:5601
