@@ -33,7 +33,7 @@
   template:
     src: "opensearch/{{ item }}.j2"
     dest: "/etc/opensearch/{{ item }}"
-    mode: "0777"
+    mode: "0640"
     owner: "{{ elk_uid }}"
     group: "{{ elk_gid }}"
   loop:

@@ -20,9 +20,7 @@
       -e "OPENSEARCH_JAVA_OPTS=-Xms{{ elasticsearch_minimum_heap_size }} -Xmx{{ elasticsearch_maximum_heap_size }}"
       -v /mnt/opensearch/data:/usr/share/opensearch/data:z
       -v /mnt/opensearch/logs:/var/log/opensearch:z
-      -v /etc/opensearch/certs/localCA.pem:/usr/share/opensearch/config/localCA.pem:Z
-      -v /etc/opensearch/certs/elasticsearch-admin.crt:/usr/share/opensearch/config/elasticsearch-admin.crt:Z
-      -v /etc/opensearch/certs/elasticsearch-admin.key:/usr/share/opensearch/config/elasticsearch-admin.key:Z
+      -v /etc/opensearch/certs/:/usr/share/opensearch/config/certs:Z
       -v /etc/opensearch/opensearch.yml:/usr/share/opensearch/config/opensearch.yml:z
       -v /etc/opensearch/internal_users.yml:/usr/share/opensearch/plugins/opensearch-security/securityconfig/internal_users.yml:z
       -v /etc/opensearch/roles_mapping.yml:/usr/share/opensearch/plugins/opensearch-security/securityconfig/roles_mapping.yml:z

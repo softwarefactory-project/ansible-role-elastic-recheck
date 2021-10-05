@@ -19,12 +19,12 @@ plugins.security.ssl.http.enabled: true
 plugins.security.allow_default_init_securityindex: true
 plugins.security.allow_unsafe_democertificates: false
 
-plugins.security.ssl.transport.pemcert_filepath: /usr/share/opensearch/config/elasticsearch-admin.crt
-plugins.security.ssl.transport.pemkey_filepath: /usr/share/opensearch/config/elasticsearch-admin.key
-plugins.security.ssl.transport.pemtrustedcas_filepath: /usr/share/opensearch/config/localCA.pem
-plugins.security.ssl.http.pemcert_filepath: /usr/share/opensearch/config/elasticsearch-admin.crt
-plugins.security.ssl.http.pemkey_filepath: /usr/share/opensearch/config/elasticsearch-admin.key
-plugins.security.ssl.http.pemtrustedcas_filepath: /usr/share/opensearch/config/localCA.pem
+plugins.security.ssl.transport.pemcert_filepath: /usr/share/opensearch/config/certs/elasticsearch-admin.crt
+plugins.security.ssl.transport.pemkey_filepath: /usr/share/opensearch/config/certs/elasticsearch-admin.key
+plugins.security.ssl.transport.pemtrustedcas_filepath: /usr/share/opensearch/config/certs/localCA.pem
+plugins.security.ssl.http.pemcert_filepath: /usr/share/opensearch/config/certs/elasticsearch-admin.crt
+plugins.security.ssl.http.pemkey_filepath: /usr/share/opensearch/config/certs/elasticsearch-admin.key
+plugins.security.ssl.http.pemtrustedcas_filepath: /usr/share/opensearch/config/certs/localCA.pem
 plugins.security.authcz.admin_dn:
   - {{ elk_cert_subject.stdout | default('CN=elasticsearch.sftests.com,O=ElasticsearchSoftwareFactory,L=WROCLAW,ST=DOLNOSLASKIE,C=PL') }}
 

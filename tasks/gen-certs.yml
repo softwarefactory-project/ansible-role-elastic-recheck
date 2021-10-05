@@ -5,7 +5,7 @@
     owner: "{{ elk_uid }}"
     group: "{{ elk_gid }}"
     state: directory
-    mode: '0777'
+    mode: '0750'
 
 - name: Check if CA certs was done earlier
   stat:
@@ -104,6 +104,6 @@
     path: "/etc/opensearch/certs"
     owner: "{{ elk_uid }}"
     group: "{{ elk_gid }}"
-    mode: '0777'
+    mode: '0755'
     recurse: true
     state: directory

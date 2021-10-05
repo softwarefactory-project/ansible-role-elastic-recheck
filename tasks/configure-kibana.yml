@@ -3,7 +3,7 @@
   file:
     path: /etc/opensearch
     state: directory
-    mode: '0777'
+    mode: '0755'
     owner: "{{ elk_uid }}"
     group: "{{ elk_gid }}"
 
@@ -11,7 +11,9 @@
   template:
     src: kibana_config.yml.j2
     dest: "/etc/opensearch/opensearch_dashboards.yml"
-    mode: '0777'
+    owner: "{{ elk_uid }}"
+    group: "{{ elk_gid }}"
+    mode: '0640'
   register: _kibana_conf
   no_log: True
 
