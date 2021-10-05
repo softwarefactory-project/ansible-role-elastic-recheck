@@ -7,10 +7,3 @@
     enablerepo: "elasticsearch-7.x,sfrelease-3.6"
   loop:
     - "logstash-oss-{{ logstash_stack_version }}.{{ logstash_sub_version }}"
-
-- name: Add logstash user to elasticsearch group
-  user:
-    name: logstash
-    groups: elasticsearch
-    append: true
-  when: elasticsearch_distro | lower == 'opendistro'

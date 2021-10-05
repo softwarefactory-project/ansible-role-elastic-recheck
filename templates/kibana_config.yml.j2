@@ -1,9 +1,5 @@
 ---
-{% if elasticsearch_distro | lower == 'opendistro' %}
-elasticsearch.hosts: "https://{{ ansible_default_ipv4.address }}:9200"
-{% else %}
 opensearch.hosts: ["https://{{ ansible_default_ipv4.address }}:9200"]
-{% endif %}
 
 server.basePath: "/analytics"
 server.host: {{ ansible_default_ipv4.address }}
@@ -13,25 +9,17 @@ elasticsearch.ssl.verificationMode: none
 elasticsearch.username: kibanaserver
 elasticsearch.password: {{ kibanaserver }}
 
-{{ kibana_settings_prefix }}.multitenancy.tenants.enable_private: false
-{{ kibana_settings_prefix }}.multitenancy.enabled: true
-{{ kibana_settings_prefix }}.multitenancy.tenants.preferred: [ "{{ elasticsearch_tenants }}" ]
-{{ kibana_settings_prefix }}.multitenancy.enable_filter: true
-{{ kibana_settings_prefix }}.multitenancy.tenants.enable_global: false
-{{ kibana_settings_prefix }}.basicauth.login.title: "The Software Factory Elasticsearch"
-{{ kibana_settings_prefix }}.basicauth.login.subtitle: "{{ kibana_loginscreen_text }}"
-
+opensearch_security.multitenancy.tenants.enable_private: false
+opensearch_security.multitenancy.enabled: true
+opensearch_security.multitenancy.tenants.preferred: [ "{{ elasticsearch_tenants }}" ]
+opensearch_security.multitenancy.enable_filter: true
+opensearch_security.multitenancy.tenants.enable_global: false
+opensearch_security.basicauth.login.title: "The Software Factory Elasticsearch"
+opensearch_security.basicauth.login.subtitle: "{{ kibana_loginscreen_text }}"
 
 # additional settings that were not listened in configure-kibana,
 # but are required.
 elasticsearch.requestHeadersWhitelist: ["securitytenant","Authorization", "authorization"]
-{{ kibana_settings_prefix }}.readonly_mode.roles: ["kibana_read_only"]
-{{ kibana_settings_prefix }}.cookie.secure: false
+opensearch_security.readonly_mode.roles: ["kibana_read_only"]
+opensearch_security.cookie.secure: false
 map.includeElasticMapsService: false
-
-{% if elasticsearch_distro | lower == 'opendistro' %}
-telemetry.enabled: false
-telemetry.optIn: false
-newsfeed.enabled: false
-security.showInsecureClusterWarning: false
-{% endif %}

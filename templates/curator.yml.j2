@@ -9,7 +9,7 @@ client:
   use_ssl: True
   ssl_no_validate: False
   http_auth: {{ user.user }}_{{ user.tenant | replace('.', '_') }}:{{ user.password }}
-  certificate: '{{ elk_stack_certs }}/localCA.pem'
+  certificate: '/etc/opensearch/certs/localCA.pem'
 
 logging:
   loglevel: INFO

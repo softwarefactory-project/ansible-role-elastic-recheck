@@ -1,15 +1,6 @@
 ---
-- name: Install Elasticsearch and requirements
-  yum:
-    name:
-      - java-11-openjdk
-      - opendistroforelasticsearch
-    state: present
-  when: elasticsearch_distro | lower == 'opendistro'
-
 - name: Install container provisioner
   yum:
     name:
       - podman
     state: present
-  when: elasticsearch_distro | lower == 'opensearch'

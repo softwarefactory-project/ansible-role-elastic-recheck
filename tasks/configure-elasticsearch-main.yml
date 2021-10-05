@@ -9,38 +9,21 @@
     mode: "0777"
   loop:
     - "/etc/opensearch"
-    - "{{ elk_data_dir }}"
-    - "{{ elk_log_dir}}"
-  when: elasticsearch_distro | lower == 'opensearch'
+    - "/mnt/opensearch/data"
+    - "/mnt/opensearch/logs"
 
 - name: Create Elasticsearch config file
   template:
     src: templates/elasticsearch_config.yml.j2
-    dest: "{{ elk_config_path }}"
+    dest: "/etc/opensearch/opensearch.yml"
   register: _common_config
-
-- name: Configure jvm Elasticsearch settings
-  lineinfile:
-    dest: /etc/elasticsearch/jvm.options
-    regexp: "^#?{{ item.regexp }}.*"
-    line: "{{ item.line }}"
-    create: "{{ item.create | default(true) }}"
-  loop:
-    - regexp: "-Xms"
-      line: "-Xms{{ elasticsearch_minimum_heap_size }}"
-      dest: /etc/elasticsearch/jvm.options
-    - regexp: "-Xmx"
-      line: "-Xmx{{ elasticsearch_maximum_heap_size }}"
-      dest: /etc/elasticsearch/jvm.options
-  when: elasticsearch_distro | lower == 'opendistro'
 
 - name: Set permissions for opensearch config file
   file:
-    path: "{{ elk_config_path }}"
+    path: "/etc/opensearch/opensearch.yml"
     owner: "{{ elk_uid }}"
     group: "{{ elk_gid }}"
     mode: "0777"
-  when: elasticsearch_distro | lower == 'opensearch'
 
 # https://opensearch.org/docs/opensearch/install/important-settings/
 - name: Set important settings for Opensearch container
@@ -55,5 +38,5 @@
     name: elasticsearch
     state: restarted
     enabled: true
-  ignore_errors: "{{ true if elasticsearch_distro | lower == 'opensearch' else false }}"
+  ignore_errors: true
   when: _common_config.changed

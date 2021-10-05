@@ -1,14 +1,6 @@
 ---
-- name: Install Kibana - opendistro
-  yum:
-    name:
-      - opendistroforelasticsearch-kibana
-    state: present
-  when: elasticsearch_distro | lower == 'opendistro'
-
 - name: Install container provisioner
   yum:
     name:
       - podman
     state: present
-  when: elasticsearch_distro | lower == 'opensearch'

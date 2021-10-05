@@ -1,17 +1,14 @@
 ---
-- name: Set proper facts
-  include_tasks: recognize-facts.yml
-
 - name: Configure mirrors
   include_tasks: configure-mirrors.yml
 
-- name: Setup Opendistro Elasticsearch
+- name: Setup Opensearch - Elasticsearch
   include_tasks: setup-elasticsearch.yml
 
-- name: Setup Opendistro Kibana
+- name: Setup Opensearch dashboards - Kibana
   include_tasks: setup-kibana.yml
 
-- name: Setup Opendistro Logstash
+- name: Setup Logstash
   include_tasks: setup-logstash.yml
 
 - name: Setup Curator package
@@ -31,7 +28,6 @@
 
 - name: Configure container
   include_tasks: configure-opensearch.yml
-  when: elasticsearch_distro | lower == 'opensearch'
 
 - name: Configure Logstash
   include_tasks: configure-logstash.yml

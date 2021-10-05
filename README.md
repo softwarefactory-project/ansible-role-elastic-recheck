@@ -2,7 +2,7 @@ Elasticsearch recheck role
 --------------------------
 
 The main goal of this role is to setup the Elasticsearch
-and/or Kibana service base on Opendistro for Elasticsearch distribution.
+and/or Kibana service base on Opensearch Elasticsearch distribution.
 The current role definition is deploying Elasticsearch service and
 configure tenants and users belong to tenants.
 The current deployment is configuring users/tenant in `internal_users`
@@ -97,8 +97,8 @@ generated user would look like:
 admin_sftests_com
 ```
 
-The `backend roles` configuration you can find [here](https://opendistro.github.io/for-elasticsearch-docs/docs/security/configuration/configuration/#backend-configuration)
-and [here](https://opendistro.github.io/for-elasticsearch-docs/docs/security/access-control/users-roles/#rolesyml).
+The `backend roles` configuration you can find [here](https://opensearch.org/docs/security-plugin/access-control/index/)
+and [here](https://opensearch.org/docs/security-plugin/access-control/users-roles/).
 
 It has been done because each tenant will have own `admin` user,
 `kibana` (readonly user) and others. The current setup is to avoid user name

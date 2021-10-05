@@ -33,7 +33,7 @@ output {
     password => "{{ user.password }}"
     ssl => true
     ssl_certificate_verification => true
-    cacert => '{{ elk_stack_certs }}/localCA.pem'
+    cacert => '/etc/opensearch/certs/localCA.pem'
     ilm_enabled => false
   }
 }

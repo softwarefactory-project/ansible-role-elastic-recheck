@@ -10,15 +10,15 @@
 - name: Configure Kibana
   template:
     src: kibana_config.yml.j2
-    dest: "{{ kibana_config_path }}"
+    dest: "/etc/opensearch/opensearch_dashboards.yml"
     mode: '0777'
   register: _kibana_conf
   no_log: True
 
 - name: Restart service if necessary
   service:
-    name: "{{ 'opensearch-dashboards' if elasticsearch_distro | lower == 'opensearch' else 'kibana' }}"
+    name: opensearch-dashboards
     state: restarted
     enabled: true
-  ignore_errors: "{{ true if elasticsearch_distro | lower == 'opensearch' else false }}"
+  ignore_errors: true
   when: _kibana_conf.changed

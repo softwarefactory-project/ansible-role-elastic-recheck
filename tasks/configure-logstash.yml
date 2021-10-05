@@ -28,7 +28,6 @@
     - regexp: 'http.port:'
       line: "http.port: {{ logstash_http_port }}"
   register: _logstash_config
-  when: elasticsearch_distro | lower == 'opensearch'
 
 - name: Set permissions for logstash directory
   file:

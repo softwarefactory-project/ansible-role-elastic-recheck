@@ -1,19 +1,19 @@
 ---
 fqdn: elasticsearch.sftests.com
-java_home: /usr/lib/jvm/jre
-opendistro_version: 1.13.1
 logstash_stack_version: 7
 logstash_sub_version: 10.2
 logstash_retention_days: 7
+logstash_http_port: '9601'
 
-elasticsearch_distro: opensearch
-
+elk_uid: "1000"
+elk_gid: "1000"
 container_images:
   # Customized image that include patch: https://github.com/opensearch-project/opensearch-build/pull/240
   opensearch: quay.rdoproject.org/software-factory/opensearch:1.0.0-customized
   opensearch-dashboards: quay.rdoproject.org/software-factory/opensearch-dashboards:1.0.0
 
 # NOTE: some packages like curator are availble in softwarefactory repo.
+# FIXME: Move curator to the container.
 sfrelease_package: https://softwarefactory-project.io/repos/sf-release-3.6.rpm
 
 # NOTE: if cluster_role is empty, it would configure Elasticsearch
@@ -28,6 +28,7 @@ ssl_chain_file: /etc/letsencrypt/live/elasticsearch.sftests.com/chain.pem
 elasticsearch_maximum_heap_size: 512m
 elasticsearch_minimum_heap_size: 512m
 
+# FIXME: move curator and logstash to the container
 opendistro_repos_name: elasticsearch-7.x,opendistroforelasticsearch-artifacts
 opendistro_repos:
   - name: elasticsearch-7.x
