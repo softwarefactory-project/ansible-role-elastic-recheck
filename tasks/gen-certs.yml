@@ -29,7 +29,7 @@
       register: _elk_ca_cert
       notify:
         - reconfigure security plugin in containers
-  when: not _ca_cert.stat.exists
+  when: not _ca_cert.stat.exists and elastic_ssl_cert_file == ''
 
 - name: Generate certs for Elasticsearch
   block:
@@ -60,6 +60,7 @@
         path: "/etc/opensearch/certs/elasticsearch-client.crt"
       register: _elk_client_cert
 
+    # NOTE: client cert does not work. It would be done in other PS.
     - name: Generate client certs
       shell: |
         openssl genrsa -out /etc/opensearch/certs/elasticsearch-client-key-temp.pem 2048 && \
@@ -77,11 +78,6 @@
       notify:
         - reconfigure security plugin in containers
 
-    - name: Take elasticsearch subject - admin
-      shell: |
-        openssl x509 -subject -nameopt RFC2253 -noout -in /etc/opensearch/certs/elasticsearch-admin.crt | sed 's/subject= //g' | sed 's/subject=//g'
-      register: elk_cert_subject
-
     - name: Take elasticsearch subject - client
       shell: |
         openssl x509 -subject -nameopt RFC2253 -noout -in /etc/opensearch/certs/elasticsearch-client.crt | sed 's/subject= //g' | sed 's/subject=//g'
@@ -98,6 +94,16 @@
 
     - name: Trust generated cert
       command: update-ca-trust
+
+  when: elastic_ssl_cert_file == ''
+
+- name: Configure Letsencrypt
+  include_tasks: letsencrypt.yml
+
+- name: Take elasticsearch subject - admin
+  shell: |
+    openssl x509 -subject -nameopt RFC2253 -noout -in /etc/opensearch/certs/elasticsearch-admin.crt | sed 's/subject= //g' | sed 's/subject=//g'
+  register: elk_cert_subject
 
 - name: Set permissions to certs - opensearch
   file:
