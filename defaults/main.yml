@@ -8,9 +8,8 @@ logstash_http_port: '9601'
 elk_uid: "1000"
 elk_gid: "1000"
 container_images:
-  # Customized image that include patch: https://github.com/opensearch-project/opensearch-build/pull/240
-  opensearch: quay.rdoproject.org/software-factory/opensearch:1.0.0-customized
-  opensearch-dashboards: quay.rdoproject.org/software-factory/opensearch-dashboards:1.0.0
+  opensearch: quay.rdoproject.org/software-factory/opensearch:1.1.0
+  opensearch-dashboards: quay.rdoproject.org/software-factory/opensearch-dashboards:1.1.0
 
 # NOTE: some packages like curator are availble in softwarefactory repo.
 # FIXME: Move curator to the container.
