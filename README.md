@@ -188,3 +188,38 @@ network:
 ```
 
 Then run the `sfconfig` tool.
+
+## Configure Apache2 frontend with Letsencrypt
+
+The role can enable SSL support for the frontend service like Apache2.
+To configure that, set proper variables as in this example:
+
+```
+vars:
+  setup_ssl: true
+  ssl_cert_file: /etc/letsencrypt/live/elasticsearch.sftests.com/cert.pem
+  ssl_key_file: /etc/letsencrypt/live/elasticsearch.sftests.com/privkey.pem
+  ssl_chain_file: /etc/letsencrypt/live/elasticsearch.sftests.com/fullchain.pem
+```
+
+
+## Configure Letsencrypt certs with Opensearch and Opensearch-dashboards
+
+Manual configuration has been described in one of the Opensearch [issue](https://github.com/opensearch-project/security/issues/52#issuecomment-937875037).
+This role is configuring Opensearch to use Letsencrypt certs, but it is not
+recommended.
+If you would like to use it, set proper variables as in this example:
+
+```
+vars:
+  # Configure Opensearch SSL
+  opensearch_custom_ssl: true
+  elastic_ssl_key_file: /etc/letsencrypt/live/elasticsearch.sftests.com/privkey.pem
+  elastic_ssl_cert_file: /etc/letsencrypt/live/elasticsearch.sftests.com/fullchain.pem
+  elastic_ssl_ca_url: https://letsencrypt.org/certs/lets-encrypt-r3.pem
+
+  # Same variables are configuring Opensearch-dashboards SSL
+  dashboards_custom_ssl: true
+  elastic_ssl_key_file: /etc/letsencrypt/live/elasticsearch.sftests.com/privkey.pem
+  elastic_ssl_cert_file: /etc/letsencrypt/live/elasticsearch.sftests.com/fullchain.pem
+```

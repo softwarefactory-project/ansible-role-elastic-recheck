@@ -4,6 +4,12 @@ opensearch.hosts: ["https://{{ ansible_default_ipv4.address }}:9200"]
 server.basePath: "/analytics"
 server.host: {{ ansible_default_ipv4.address }}
 
+{% if dashboards_custom_ssl and elastic_ssl_key_file != '' and elastic_ssl_cert_file != '' %}
+server.ssl.enabled: true
+server.ssl.key: /usr/share/opensearch/config/certs/opensearch-dashboards.key
+server.ssl.certificate: /usr/share/opensearch/config/certs/opensearch-dashboards.crt
+{% endif %}
+
 # FIXME: Consider to set full
 elasticsearch.ssl.verificationMode: none
 elasticsearch.username: kibanaserver
