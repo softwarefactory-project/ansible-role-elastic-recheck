@@ -1,9 +1,4 @@
 ---
-- name: Install bcrypt package
-  package:
-    name: httpd-tools
-    state: present
-
 - name: Generate facts - internal users
   include_tasks: gen-user-pass.yml
   loop: "{{ internal_users }}"

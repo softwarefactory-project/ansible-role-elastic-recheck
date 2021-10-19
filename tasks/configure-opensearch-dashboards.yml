@@ -1,0 +1,34 @@
+---
+- name: Create required directory
+  file:
+    path: /etc/opensearch
+    state: directory
+    mode: '0755'
+    owner: "{{ elk_uid }}"
+    group: "{{ elk_gid }}"
+
+- name: Configure Kibana
+  template:
+    src: opensearch_dashboards.yml.j2
+    dest: "/etc/opensearch/opensearch_dashboards.yml"
+    owner: "{{ elk_uid }}"
+    group: "{{ elk_gid }}"
+    mode: '0640'
+  no_log: True
+  notify:
+    - wait for opensearch service
+    - restart opensearch-dashboards
+
+# https://opensearch.org/docs/opensearch/install/docker#sample-docker-compose-file
+# NOTE: even when opensearch.hosts is set in opensearch_dashboards.yml file,
+# it is just ignored.
+- include_tasks: container-service.yml
+  vars:
+    pod_name: opensearch-dashboards
+    pod_param: >
+      --net host
+      --pid host
+      -e OPENSEARCH_HOSTS='["https://{{ ansible_default_ipv4.address }}:9200"]'
+      -v /etc/opensearch/certs/:/usr/share/opensearch/config/certs:Z
+      -v /etc/opensearch/opensearch_dashboards.yml:/usr/share/opensearch-dashboards/config/opensearch_dashboards.yml:z
+      {{ container_images['opensearch-dashboards'] }}

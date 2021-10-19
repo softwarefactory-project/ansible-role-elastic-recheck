@@ -14,17 +14,14 @@
 - name: Generate certs
   include_tasks: gen-certs.yml
 
-- name: Configure Elasticsearch on main host
-  include_tasks: configure-elasticsearch-main.yml
-
 - name: Create users
   include_tasks: create-users.yml
 
-- name: Configure Kibana
-  include_tasks: configure-kibana.yml
-
-- name: Configure container
+- name: Configure container - opensearch
   include_tasks: configure-opensearch.yml
+
+- name: Configure container - opensearch dashboards
+  include_tasks: configure-opensearch-dashboards.yml
 
 - name: Configure Logstash
   include_tasks: configure-logstash-curator.yml

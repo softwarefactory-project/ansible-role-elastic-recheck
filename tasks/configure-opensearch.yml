@@ -1,4 +1,40 @@
 ---
+# NOTE: /usr directory can not be mount inside the container.
+- name: Create directories for Opensearch
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ elk_uid }}"
+    group: "{{ elk_gid }}"
+    mode: "0750"
+  loop:
+    - "/etc/opensearch"
+    - "/mnt/opensearch/data"
+    - "/mnt/opensearch/logs"
+
+- name: Create Elasticsearch config file
+  template:
+    src: templates/opensearch.yml.j2
+    dest: "/etc/opensearch/opensearch.yml"
+  notify:
+    - restart opensearch
+    - wait for opensearch service
+
+- name: Set permissions for opensearch config file
+  file:
+    path: "/etc/opensearch/opensearch.yml"
+    owner: "{{ elk_uid }}"
+    group: "{{ elk_gid }}"
+    mode: "0640"
+
+# https://opensearch.org/docs/opensearch/install/important-settings/
+- name: Set important settings for Opensearch container
+  sysctl:
+    name: vm.max_map_count
+    value: '262144'
+    state: present
+    reload: true
+
 # FIXME: if we provide fully opensearch.yml file, probably we don't need to add
 # some of the environment variables.
 # https://opensearch.org/docs/opensearch/install/docker-security/
@@ -28,17 +64,3 @@
       -v /etc/opensearch/roles.yml:/usr/share/opensearch/plugins/opensearch-security/securityconfig/roles.yml:z
       -v /etc/opensearch/action_groups.yml:/usr/share/opensearch/plugins/opensearch-security/securityconfig/action_groups.yml:z
       {{ container_images['opensearch'] }}
-
-# https://opensearch.org/docs/opensearch/install/docker#sample-docker-compose-file
-# NOTE: even when opensearch.hosts is set in opensearch_dashboards.yml file,
-# it is just ignored.
-- include_tasks: container-service.yml
-  vars:
-    pod_name: opensearch-dashboards
-    pod_param: >
-      --net host
-      --pid host
-      -e OPENSEARCH_HOSTS='["https://{{ ansible_default_ipv4.address }}:9200"]'
-      -v /etc/opensearch/certs/:/usr/share/opensearch/config/certs:Z
-      -v /etc/opensearch/opensearch_dashboards.yml:/usr/share/opensearch-dashboards/config/opensearch_dashboards.yml:z
-      {{ container_images['opensearch-dashboards'] }}
