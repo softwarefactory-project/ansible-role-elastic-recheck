@@ -1,7 +1,4 @@
 ---
-- name: Configure mirrors
-  include_tasks: configure-mirrors.yml
-
 - name: Setup Opensearch - Elasticsearch
   include_tasks: setup-elasticsearch.yml
 
@@ -30,7 +27,7 @@
   include_tasks: configure-opensearch.yml
 
 - name: Configure Logstash
-  include_tasks: configure-logstash.yml
+  include_tasks: configure-logstash-curator.yml
 
 - name: Web configuration
   include_tasks: web.yml

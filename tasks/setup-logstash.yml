@@ -1,9 +1,11 @@
 ---
-- name: Install logstash package
+- name: Install container provisioner
   yum:
-    name: "{{ item }}"
+    name:
+      - podman
     state: present
-    disablerepo: "*"
-    enablerepo: "elasticsearch-7.x,sfrelease-3.6"
-  loop:
-    - "logstash-oss-{{ logstash_stack_version }}.{{ logstash_sub_version }}"
+
+- name: Remove non contenerized logstash
+  yum:
+    name: "logstash-oss"
+    state: absent

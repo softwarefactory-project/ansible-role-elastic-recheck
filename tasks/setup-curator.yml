@@ -1,7 +1,11 @@
 ---
-- name: Install Curator package
+- name: Install container provisioner
   yum:
-    name: elasticsearch-curator
+    name:
+      - podman
     state: present
-    disablerepo: "*"
-    enablerepo: "curator-5"
+
+- name: Remove non contenerized curator
+  yum:
+    name: "elasticsearch-curator"
+    state: absent

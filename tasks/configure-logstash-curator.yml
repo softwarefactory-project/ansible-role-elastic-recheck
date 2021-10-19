@@ -1,0 +1,87 @@
+---
+- name: Create required directories
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ logstash_uid }}"
+    group: "{{ logstash_gid }}"
+  loop:
+    - "/etc/logstash/conf.d"
+    - "/etc/logstash/curator.d"
+    - "{{ logstash_log_path }}"
+
+- name: Generate files for logstash and curator
+  include_tasks: logstash-curator.yml
+  loop: "{{ users | map(attribute='tenant') | unique | list | replace('.', '_') }}"
+  register: _logstash_indexes
+
+# so the opensearch container can not start when logstash is running.
+# https://opensearch.org/docs/opensearch/install/important-settings/
+- name: Create logastash configuration file
+  copy:
+    content: |
+      http.port: {{ logstash_http_port }}
+      http.host: {{ ansible_default_ipv4.address }}
+      log.level: info
+      path.logs: /var/log/logstash
+    dest: /etc/logstash/logstash.yml
+  register: _logstash_config
+
+- name: Change logstash jvm options file
+  copy:
+    content: |
+      # FROM jvm.options - default config file
+      -Xms{{logstash_minimum_heap_size}}
+      -Xmx{{logstash_maximum_heap_size}}
+      -XX:+UseConcMarkSweepGC
+      -XX:CMSInitiatingOccupancyFraction=75
+      -XX:+UseCMSInitiatingOccupancyOnly
+      -Djava.awt.headless=true
+      -Dfile.encoding=UTF-8
+      -Djruby.compile.invokedynamic=true
+      -Djruby.jit.threshold=0
+      -Djruby.regexp.interruptible=true
+      -XX:+HeapDumpOnOutOfMemoryError
+      -Djava.security.egd=file:/dev/urandom
+      -Dlog4j2.isThreadContextMapInheritable=true
+    dest: /etc/logstash/jvm.options
+
+- name: Set permissions for logstash directory
+  file:
+    path: /etc/logstash
+    state: directory
+    owner: "{{ logstash_uid }}"
+    group: "{{ logstash_gid }}"
+    recurse: true
+
+- name: Set permissions for curator directory
+  file:
+    path: /etc/logstash/curator.d
+    state: directory
+    owner: "{{ curator_uid }}"
+    group: "{{ curator_gid }}"
+    recurse: true
+
+- include_tasks: container-service.yml
+  vars:
+    pod_name: logstash
+    pod_param: >
+      --net host
+      --pid host
+      -v /etc/logstash/logstash.yml:/usr/share/logstash/config/logstash.yml:z
+      -v /etc/logstash/jvm.options:/usr/share/logstash/config/jvm.options:z
+      -v /etc/logstash/conf.d:/usr/share/logstash/pipeline:z
+      -v /etc/opensearch/certs/localCA.pem:/etc/opensearch/certs/localCA.pem:Z
+      -v {{ logstash_log_path }}:/var/log/logstash:z
+      {{ container_images['logstash'] }}
+
+- name: Pull curator image
+  shell: |
+    podman pull {{ container_images['curator'] }}
+
+- name: Restart logstash service
+  service:
+    name: logstash
+    state: restarted
+    enabled: true
+  when: _logstash_config.changed or _logstash_indexes.changed

@@ -1,6 +1,8 @@
 {% for user in users %}
 {% if 'role' in user and 'password' in user %}
 {% if user.role == 'logstash' and user.tenant | replace('.', '_') == item %}
+# FIXME: change ansible_default_ipv4.address to fqdn when is fixed:
+# https://github.com/containers/podman/issues/10319
 input {
   tcp {
     host => "{{ logstash_host | default('0.0.0.0') }}"

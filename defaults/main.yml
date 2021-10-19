@@ -1,15 +1,15 @@
 ---
 fqdn: elasticsearch.sftests.com
-logstash_stack_version: 7
-logstash_sub_version: 10.2
-logstash_retention_days: 7
-logstash_http_port: '9601'
 
+curator_uid: "1000"
+curator_gid: "1000"
 elk_uid: "1000"
 elk_gid: "1000"
 container_images:
   opensearch: quay.rdoproject.org/software-factory/opensearch:1.1.0
   opensearch-dashboards: quay.rdoproject.org/software-factory/opensearch-dashboards:1.1.0
+  logstash: quay.rdoproject.org/software-factory/logstash:7.10.1
+  curator: quay.rdoproject.org/software-factory/curator:5.7
 
 # NOTE: some packages like curator are availble in softwarefactory repo.
 # FIXME: Move curator to the container.
@@ -36,27 +36,13 @@ elastic_ssl_ca_url: ''
 elasticsearch_maximum_heap_size: 512m
 elasticsearch_minimum_heap_size: 512m
 
-# FIXME: move curator and logstash to the container
-opendistro_repos_name: elasticsearch-7.x,opendistroforelasticsearch-artifacts
-opendistro_repos:
-  - name: elasticsearch-7.x
-    desc: Elasticsearch repository for 7.x packages
-    url: https://artifacts.elastic.co/packages/oss-7.x/yum
-    gpgkey: https://artifacts.elastic.co/GPG-KEY-elasticsearch
-    gpgcheck: 1
-    enabled: 1
-  - name: opendistroforelasticsearch-artifacts
-    desc: Release RPM artifacts of OpenDistroForElasticsearch
-    url: https://d3g5vo6xdbdb9a.cloudfront.net/yum/noarch/
-    gpgkey: https://d3g5vo6xdbdb9a.cloudfront.net/GPG-KEY-opendistroforelasticsearch
-    gpgcheck: 1
-    enabled: 1
-  - name: curator-5
-    desc: CentOS/RHEL 7 repository for Elasticsearch Curator 5.x packages
-    url: https://packages.elastic.co/curator/5/centos/7
-    gpgkey: https://packages.elastic.co/GPG-KEY-elasticsearch
-    gpgcheck: 1
-    enabled: 1
+logstash_uid: "1000"
+logstash_gid: "1000"
+logstash_maximum_heap_size: 512m
+logstash_minimum_heap_size: 512m
+logstash_retention_days: 7
+logstash_http_port: '9601'
+logstash_log_path: /mnt/logstash/logs
 
 # FIXME: internal user can not be changed. It requires additional configuration
 # in {{ opendistro_plugin_dir }}/securityconfig/audit.yml and
