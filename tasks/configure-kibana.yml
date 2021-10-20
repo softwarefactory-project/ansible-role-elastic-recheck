@@ -9,7 +9,7 @@
 
 - name: Configure Kibana
   template:
-    src: kibana_config.yml.j2
+    src: opensearch_dashboards.yml.j2
     dest: "/etc/opensearch/opensearch_dashboards.yml"
     owner: "{{ elk_uid }}"
     group: "{{ elk_gid }}"

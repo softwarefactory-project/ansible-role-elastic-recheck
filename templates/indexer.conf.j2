@@ -3,7 +3,7 @@
 {% if user.role == 'logstash' and user.tenant | replace('.', '_') == item %}
 input {
   tcp {
-    host => "{{ logstash_host | default(fqdn) }}"
+    host => "{{ logstash_host | default('0.0.0.0') }}"
     port => "{{ tenant_configuration[user.tenant].logstash_input_port if 'logstash_input_port' in tenant_configuration[user.tenant] else '9999' }}"
     codec => json_lines {}
     type => "zuul"

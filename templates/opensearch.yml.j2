@@ -3,7 +3,7 @@ cluster.name: {{ fqdn | replace('.', '_') }}
 node.name: {{ inventory_hostname }}
 path.data: /usr/share/opensearch/data
 path.logs: /var/log/opensearch
-network.host: {{ ansible_default_ipv4.address }}
+network.host: 0.0.0.0
 http.port: 9200
 
 {% if not cluster_role %}
@@ -12,7 +12,6 @@ node.master: true
 {% endif %}
 
 cluster.routing.allocation.disk.threshold_enabled: false
-node.max_local_storage_nodes: 3
 
 plugins.security.ssl.transport.enforce_hostname_verification: false
 plugins.security.ssl.http.enabled: true

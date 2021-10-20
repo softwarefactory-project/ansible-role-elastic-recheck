@@ -8,16 +8,21 @@
 
 - name: Setup web config
   template:
-    src: gateway-kibana.conf.j2
-    dest: /etc/httpd/conf.d/gateway-kibana.conf
+    src: opensearch_dashboards-vhost.conf.j2
+    dest: /etc/httpd/conf.d/opensearch_dashboards-vhost.conf.j2
     mode: '0444'
     owner: root
     group: root
   register: _httpd_conf
 
+- name: Remove previous vhost file
+  file:
+    path: /etc/httpd/conf.d/gateway-kibana.conf.j2
+    state: absent
+
 - name: Generate kibana autologin location
   template:
-    src: kibana_autologin.conf.j2
+    src: kibana_autologin-vhost.conf.j2
     dest: /etc/httpd/conf.d/kibana_autologin_{{ item['tenant'] | replace('.', '_') }}.conf
     mode: '0444'
     owner: root

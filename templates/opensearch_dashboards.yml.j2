@@ -2,7 +2,7 @@
 opensearch.hosts: ["https://{{ ansible_default_ipv4.address }}:9200"]
 
 server.basePath: "/analytics"
-server.host: {{ ansible_default_ipv4.address }}
+server.host: 0.0.0.0
 
 {% if dashboards_custom_ssl and elastic_ssl_key_file != '' and elastic_ssl_cert_file != '' %}
 server.ssl.enabled: true

@@ -14,7 +14,7 @@
 
 - name: Create Elasticsearch config file
   template:
-    src: templates/elasticsearch_config.yml.j2
+    src: templates/opensearch.yml.j2
     dest: "/etc/opensearch/opensearch.yml"
   register: _common_config
 
