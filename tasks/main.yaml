@@ -1,4 +1,7 @@
 ---
+- name: Replace incompatible characters
+  include_tasks: gen_informations.yaml
+
 - name: Setup Opensearch - Elasticsearch
   include_tasks: setup-elasticsearch.yml
 

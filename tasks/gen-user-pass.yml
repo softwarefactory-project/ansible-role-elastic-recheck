@@ -15,8 +15,8 @@
     # elasticsearch_admin_myinfra2 and elasticsearch_admin_myinfra2_hash
     - name: Set Elasticsearch users as a fact
       set_fact:
-        "elasticsearch_{{ item.user }}_{{ item.tenant | replace('.', '_') }}": "{{ item.password }}"
-        "elasticsearch_{{ item.user }}_{{ item.tenant | replace('.', '_') }}_hash": "{{ item.password | password_hash('bcrypt', rounds=12) }}"
+        "elasticsearch_{{ item.user }}_{{ item.tenant }}": "{{ item.password }}"
+        "elasticsearch_{{ item.user }}_{{ item.tenant }}_hash": "{{ item.password | password_hash('bcrypt', rounds=12) }}"
       when: not is_internal_user
   when:
     - "'password' in item"

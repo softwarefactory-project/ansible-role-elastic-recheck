@@ -7,7 +7,7 @@
 
 # Check if e.g.: kibana_sftests_com_basicauth is available in generated
 # vars.
-<Location "/{{ item.tenant | replace('.', '_') }}_autologin">
+<Location "/{{ item.tenant }}_autologin">
     # Common settings for Basic/JWT auth
     RequestHeader set "Host" "{{ fqdn }}"
 
@@ -17,7 +17,7 @@
 
 {% if item.tenant in tenant_configuration and 'kibana_autologin' in tenant_configuration[item.tenant] and tenant_configuration[item.tenant]['kibana_autologin'] | lower == 'basic' %}
     # Basic auth
-    RequestHeader set "Authorization" "Basic {{ vars[item.user + '_' + item.tenant | replace('.', '_') + '_basicauth' ] }}"
+    RequestHeader set "Authorization" "Basic {{ vars[item.user + '_' + item.tenant + '_basicauth' ] }}"
 {% endif %}
 
     ProxyPass http://{{ ansible_default_ipv4.address }}:5601
@@ -25,5 +25,5 @@
 
     RewriteEngine on
     RewriteCond %{QUERY_STRING} ^$
-    RewriteRule "/{{ item.tenant | replace('.', '_') }}_autologin/" / [L]
+    RewriteRule "/{{ item.tenant }}_autologin/" / [L]
 </Location>

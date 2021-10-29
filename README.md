@@ -73,7 +73,7 @@ Where in `vars` is including user definition, that looks like:
       - user: "<user>"
         role: "<backend role>"
         password: "<user password>"
-        tenant: "<tenant name | replace('.', '_') >"
+        tenant: "<tenant name | replace('.', '_') | replace('-', '_') >"
 ```
 
 The `internal_users` is setup users that are used for internal services.
@@ -84,7 +84,7 @@ configuration and the user should not be changed.
 The `users` dict is "mapped" in Ansible roles with convention:
 
 ```
-<user>_<tenant | replace('.', '_')>
+<user>_<tenant | replace('.', '_') | replace('-', '_')>
 ```
 
 For example, when user definition looks like:

@@ -137,7 +137,7 @@ asynchronous_search_read_access:
 {% for user in users %}
 {% if 'role' in user and 'tenant' in user %}
 {% if user.role == 'readonly' %}
-kibana_viewer_{{ user.tenant | replace('.', '_') }}:
+kibana_viewer_{{ user.tenant }}:
   reserved: true
   cluster_permissions:
     - "cluster_composite_ops_ro"
@@ -145,8 +145,8 @@ kibana_viewer_{{ user.tenant | replace('.', '_') }}:
   - index_patterns:
       - "?kibana*"
       - "?kibana"
-      - "logstash-{{ user.tenant | replace('.', '_') }}-*"
-      - "zuul-{{ user.tenant | replace('.', '_') }}.*"
+      - "logstash-{{ user.tenant }}-*"
+      - "zuul-{{ user.tenant }}.*"
     allowed_actions:
       - "read"
       - "get"
@@ -158,7 +158,7 @@ kibana_viewer_{{ user.tenant | replace('.', '_') }}:
       - "indices:monitor/recovery"
   tenant_permissions:
     - tenant_patterns:
-        - "{{ user.tenant | replace('.', '_') }}"
+        - "{{ user.tenant }}"
       allowed_actions:
         - "kibana_all_read"
 {% elif user.role == 'admin' %}
@@ -166,7 +166,7 @@ kibana_viewer_{{ user.tenant | replace('.', '_') }}:
 # https://github.com/opensearch-project/security/blob/main/src/main/resources/static_config/static_roles.yml
 # NOTE: without index_permissions set to "*", admin can not create
 # new index pattern.
-{{ user.user }}_{{ user.tenant | replace('.', '_') }}:
+{{ user.user }}_{{ user.tenant }}:
   reserved: true
   cluster_permissions:
     - "*"
@@ -177,13 +177,13 @@ kibana_viewer_{{ user.tenant | replace('.', '_') }}:
         - "*"
   tenant_permissions:
     - tenant_patterns:
-        - "{{ user.tenant | replace('.', '_') }}"
+        - "{{ user.tenant }}"
       allowed_actions:
         - "kibana_all_write"
 {% elif user.role in ['curator', 'logstash' ] %}
 # From static role:
 # https://github.com/opensearch-project/security/blob/main/src/main/resources/static_config/static_roles.yml
-{{ user.user }}_{{ user.tenant | replace('.', '_') }}:
+{{ user.user }}_{{ user.tenant }}:
   reserved: true
   cluster_permissions:
     - "cluster_monitor"
@@ -195,12 +195,12 @@ kibana_viewer_{{ user.tenant | replace('.', '_') }}:
     - "indices:admin/create"
   tenant_permissions:
     - tenant_patterns:
-        - "{{ user.tenant | replace('.', '_') }}"
+        - "{{ user.tenant }}"
       allowed_actions:
         - "kibana_all_write"
   index_permissions:
     - index_patterns:
-        - "logstash-{{ user.tenant | replace('.', '_') }}-*"
+        - "logstash-{{ user.tenant }}-*"
       allowed_actions:
         - "crud"
         - "create_index"

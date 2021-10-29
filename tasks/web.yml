@@ -23,7 +23,7 @@
 - name: Generate kibana autologin location
   template:
     src: kibana_autologin-vhost.conf.j2
-    dest: /etc/httpd/conf.d/kibana_autologin_{{ item['tenant'] | replace('.', '_') }}.conf
+    dest: /etc/httpd/conf.d/kibana_autologin_{{ item['tenant'] }}.conf
     mode: '0444'
     owner: root
     group: root

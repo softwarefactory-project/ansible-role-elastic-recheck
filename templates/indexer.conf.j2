@@ -1,6 +1,6 @@
 {% for user in users %}
 {% if 'role' in user and 'password' in user %}
-{% if user.role == 'logstash' and user.tenant | replace('.', '_') == item %}
+{% if user.role == 'logstash' and user.tenant == item %}
 # FIXME: change ansible_default_ipv4.address to fqdn when is fixed:
 # https://github.com/containers/podman/issues/10319
 input {
@@ -30,8 +30,8 @@ filter {
 output {
   elasticsearch {
     hosts => ['https://{{ fqdn }}:9200']
-    index => "logstash{{ '-' + user.tenant | replace('.', '_') }}-%{+YYYY.MM.dd}"
-    user => '{{ user.user }}_{{ user.tenant | replace('.', '_') }}'
+    index => "logstash{{ '-' + user.tenant }}-%{+YYYY.MM.dd}"
+    user => '{{ user.user }}_{{ user.tenant }}'
     password => "{{ user.password }}"
     ssl => true
     ssl_certificate_verification => true

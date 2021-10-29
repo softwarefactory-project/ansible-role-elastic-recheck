@@ -12,7 +12,7 @@
 
 - name: Generate files for logstash and curator
   include_tasks: logstash-curator.yml
-  loop: "{{ users | map(attribute='tenant') | unique | list | replace('.', '_') }}"
+  loop: "{{ users | map(attribute='tenant') | unique | list }}"
   register: _logstash_indexes
 
 # so the opensearch container can not start when logstash is running.
