@@ -3,14 +3,14 @@
     check:
       jobs:
         - linters:
-            nodeset: fedora-latest-pod
+            nodeset: linters-pod
         - sf-ci-functional-external-elk: {}
         - sf-ci-functional-allinone: {}
         - sf-ci-upgrade-allinone: {}
     gate:
       jobs:
         - linters:
-            nodeset: fedora-latest-pod
+            nodeset: linters-pod
         - sf-ci-functional-external-elk: {}
         - sf-ci-functional-allinone: {}
         - sf-ci-upgrade-allinone: {}
