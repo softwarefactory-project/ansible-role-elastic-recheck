@@ -1,0 +1,5 @@
+flake8<3.8.5
+pep8<1.7.2
+pytest
+requests
+PyYAML
