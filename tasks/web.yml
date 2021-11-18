@@ -9,7 +9,7 @@
 - name: Setup web config
   template:
     src: opensearch_dashboards-vhost.conf.j2
-    dest: /etc/httpd/conf.d/opensearch_dashboards-vhost.conf.j2
+    dest: /etc/httpd/conf.d/opensearch_dashboards-vhost.conf
     mode: '0444'
     owner: root
     group: root
