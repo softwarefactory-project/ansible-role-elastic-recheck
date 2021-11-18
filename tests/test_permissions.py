@@ -382,13 +382,10 @@ class TestClassSingleTenant:
                                        data=json.dumps(data))
             assert r.status_code == 201
 
-#            # FIXME: Uncomment when
-#            # https://softwarefactory-project.io/r/c/software-factory/ansible-role-elastic-recheck/+/23178 # noqa
-#            # merged.
-#            r = self.user_session.post(url_update, verify=self.insecure,
-#                                       headers=headers,
-#                                       data=json.dumps(data_update))
-#            assert r.status_code == 403
+            r = self.user_session.post(url_update, verify=self.insecure,
+                                       headers=headers,
+                                       data=json.dumps(data_update))
+            assert r.status_code == 403
 
             r = self.admin_session.post(url_update, verify=self.insecure,
                                         headers=headers,
@@ -402,4 +399,3 @@ class TestClassSingleTenant:
             assert response_source['_source']['user'] == 'Timson'
         finally:
             self._delete_index(self.index_pattern)
-
