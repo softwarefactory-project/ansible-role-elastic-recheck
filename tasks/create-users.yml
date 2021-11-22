@@ -21,8 +21,8 @@
 
 - name: Get elasticsearch tenant list
   set_fact:
-    elasticsearch_tenants: "{{ users | map(attribute='tenant') | unique | list | join(',') | replace('.', '_') }}"
-    kibana_loginscreen_text: "{% for user in users %}{% if user['role'] == 'readonly' %}Tenant: {{ user['tenant'] }} user: {{ user['user'] + '_' + user['tenant'] | replace('.', '_') }} password: {{ user['password'] }}{% endif %}{% endfor %}"
+    elasticsearch_tenants: "{{ users | map(attribute='tenant') | unique | list | join(',') }}"
+    kibana_loginscreen_text: "{% for user in users %}{% if user['role'] == 'readonly' %}Tenant: {{ user['tenant'] }} user: {{ user['user'] + '_' + user['tenant'] }} password: {{ user['password'] }}{% endif %}{% endfor %}"
 
 - name: Set the security plugin configuration
   template:

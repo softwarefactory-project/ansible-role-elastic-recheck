@@ -6,7 +6,7 @@ _meta:
 {% set tmp_tenants = [] %}
 {% for user in users %}
 {% if user.tenant not in tmp_tenants %}
-{{ user.tenant | replace('.', '_') }}:
+{{ user.tenant }}:
   reserved: false
   description: "Tenant for {{ user.tenant }} users"
 {{ tmp_tenants.append(user.tenant) }}

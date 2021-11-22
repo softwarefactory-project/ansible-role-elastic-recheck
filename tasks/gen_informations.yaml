@@ -1,0 +1,17 @@
+---
+- name: Change tenant name
+  set_fact:
+    users: >-
+      {%- set new_users = [] -%}
+        {% for user in users %}
+          {%- set tmp_user =  user | combine({'tenant': user.tenant | replace('.', '_') | replace('-','_')})  -%}
+          {%- set new_users = new_users.append( tmp_user ) -%}
+        {% endfor %}
+      {{ new_users }}
+    tenant_configuration: >-
+      {%- set new_tenant = {} -%}
+      {%- for tenant, value in tenant_configuration.items() -%}
+        {%- set new_tenant = new_tenant.update( {tenant | replace('.','_') | replace('-','_'): value } ) -%}
+      {%- endfor -%}
+      {{ new_tenant }}
+  no_log: true

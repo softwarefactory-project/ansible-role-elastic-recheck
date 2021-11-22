@@ -25,18 +25,18 @@ _meta:
 {% for user in users %}
 {% if 'role' in user and 'tenant' in user %}
 {% if user.role == 'readonly' %}
-kibana_{{ user.tenant | replace('.', '_') }}:
-  hash: {{ vars['elasticsearch_' + user.user + '_' + (user.tenant | replace('.', '_')) + '_hash'] }}
+kibana_{{ user.tenant }}:
+  hash: {{ vars['elasticsearch_' + user.user + '_' + user.tenant + '_hash'] }}
   reserved: true
   opendistro_security_roles:
-    - kibana_viewer_{{ user.tenant | replace('.', '_') }}
-  description: Kibana viewer user for tenant {{ user.tenant | replace('.', '_') }}
+    - kibana_viewer_{{ user.tenant }}
+  description: Kibana viewer user for tenant {{ user.tenant }}
 {% else %}
-{{ user.user }}_{{ user.tenant | replace('.', '_') }}:
-  hash: {{ vars['elasticsearch_' + user.user + '_' + (user.tenant | replace('.', '_')) + '_hash'] }}
+{{ user.user }}_{{ user.tenant }}:
+  hash: {{ vars['elasticsearch_' + user.user + '_' + user.tenant + '_hash'] }}
   reserved: true
   opendistro_security_roles:
-    - "{{ user.role }}_{{ user.tenant | replace('.', '_') }}"
+    - "{{ user.role }}_{{ user.tenant }}"
   description: "User {{ user.user }} user for {{ user.role }}"
   hidden: true
 {% endif %}
