@@ -1,0 +1,35 @@
+---
+opensearch_api_url: https://elasticsearch.sftests.com:9200
+insecure: True
+tenant_configuration:
+  sftests.com:
+    logstash_input_port: 9998
+    kibana_autologin: "basic"
+internal_users:
+  - user: "admin"
+    role: "admin"
+    password: "admin"
+  - user: "kibanaserver"
+    role: "kibanauser"
+    password: "kibanaserver"
+users:
+  - user: "admin"
+    role: "admin"
+    password: "admin"
+    tenant: "sftests.com"
+  - user: "logstash"
+    role: "logstash"
+    password: "logstash"
+    tenant: "sftests.com"
+  - user: "curator"
+    role: "curator"
+    password: "curator"
+    tenant: "sftests.com"
+  - user: "kibana"
+    role: "readonly"
+    password: "kibana"
+    tenant: "sftests.com"
+  - user: "zuul"
+    role: "admin"
+    password: "zuul"
+    tenant: "sftests.com"
