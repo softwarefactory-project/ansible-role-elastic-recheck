@@ -6,7 +6,7 @@ curator_gid: "1000"
 elk_uid: "1000"
 elk_gid: "1000"
 container_images:
-  opensearch: quay.rdoproject.org/software-factory/opensearch:1.2.0
+  opensearch: quay.rdoproject.org/software-factory/opensearch:1.2.1
   opensearch-dashboards: quay.rdoproject.org/software-factory/opensearch-dashboards:1.2.0
   logstash: quay.rdoproject.org/software-factory/logstash:7.10.1
   curator: quay.rdoproject.org/software-factory/curator:5.7
