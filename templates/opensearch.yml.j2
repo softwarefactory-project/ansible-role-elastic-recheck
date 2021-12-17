@@ -8,10 +8,13 @@ http.port: 9200
 
 {% if not cluster_role %}
 discovery.type: single-node
-node.master: true
+node.roles: master,data,ingest
 {% endif %}
 
 cluster.routing.allocation.disk.threshold_enabled: false
+
+# along with the memlock settings below, disables swapping
+bootstrap.memory_lock: true
 
 plugins.security.ssl.transport.enforce_hostname_verification: false
 plugins.security.ssl.http.enabled: true
