@@ -34,4 +34,5 @@
       -v /etc/logstash/curator.d/curator_{{ item }}.yml:/.curator/curator.yml:z
       -v /etc/logstash/curator.d/delete_old_indices_{{ item }}.yml:/curator/delete_old_indices_{{ item }}.yml:z
       -v /etc/opensearch/certs/localCA.pem:/etc/opensearch/certs/localCA.pem:z
-      -it curator /curator/delete_old_indices_{{ item }}.yml
+      --rm
+      curator /curator/delete_old_indices_{{ item }}.yml

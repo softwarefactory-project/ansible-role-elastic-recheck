@@ -66,8 +66,7 @@
   vars:
     pod_name: logstash
     pod_param: >
-      --net host
-      --pid host
+      {{ logstash_container_params }}
       -e LS_JAVA_OPTS="-Dlog4j2.formatMsgNoLookups=true"
       -v /etc/logstash/logstash.yml:/usr/share/logstash/config/logstash.yml:z
       -v /etc/logstash/jvm.options:/usr/share/logstash/config/jvm.options:z

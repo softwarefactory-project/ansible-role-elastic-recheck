@@ -35,14 +35,21 @@ elastic_ssl_ca_url: ''
 
 elasticsearch_maximum_heap_size: 512m
 elasticsearch_minimum_heap_size: 512m
+# NOTE: you can add --memory param to limit memory consuming by the pod.
+opensearch_container_params: "--net host --pid host"
 
 logstash_uid: "1000"
 logstash_gid: "1000"
-logstash_maximum_heap_size: 512m
-logstash_minimum_heap_size: 512m
 logstash_retention_days: 7
 logstash_http_port: '9601'
 logstash_log_path: /mnt/logstash/logs
+logstash_maximum_heap_size: 512m
+logstash_minimum_heap_size: 512m
+# NOTE: you can add --memory param to limit memory consuming by the pod.
+logstash_container_params: "--net host --pid host"
+
+# NOTE: you can add --memory param to limit memory consuming by the pod.
+opensearch_dashboards_container_params: "--net host --pid host"
 
 # FIXME: internal user can not be changed. It requires additional configuration
 # in {{ opendistro_plugin_dir }}/securityconfig/audit.yml and

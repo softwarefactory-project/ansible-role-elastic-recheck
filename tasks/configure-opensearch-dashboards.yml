@@ -26,8 +26,7 @@
   vars:
     pod_name: opensearch-dashboards
     pod_param: >
-      --net host
-      --pid host
+      {{ opensearch_dashboards_container_params }}
       -e OPENSEARCH_HOSTS='["https://{{ ansible_default_ipv4.address }}:9200"]'
       -v /etc/opensearch/certs/:/usr/share/opensearch/config/certs:Z
       -v /etc/opensearch/opensearch_dashboards.yml:/usr/share/opensearch-dashboards/config/opensearch_dashboards.yml:z
