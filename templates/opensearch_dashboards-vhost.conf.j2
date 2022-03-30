@@ -11,13 +11,11 @@
         RewriteEngine On
         DocumentRoot /var/www/html
 
-        <Location "/">
         {% if setup_ssl %}
-            RedirectMatch ^/$ https://{{ fqdn }}/analytics/
+            Redirect permanent / https://{{ fqdn }}/analytics/
         {% else %}
-            RedirectMatch ^/$ http://{{ fqdn }}/analytics/
+            Redirect permanent / http://{{ fqdn }}/analytics/
         {% endif %}
-        </Location>
     </VirtualHost>
 
     {% if setup_ssl %}
