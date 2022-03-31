@@ -1,0 +1,4 @@
+---
+- name: Create ISM for tenants
+  include_tasks: create-ism.yml
+  with_items: "{{ tenant_configuration }}"

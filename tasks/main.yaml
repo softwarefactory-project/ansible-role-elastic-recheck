@@ -11,9 +11,6 @@
 - name: Setup Logstash
   include_tasks: setup-logstash.yml
 
-- name: Setup Curator package
-  include_tasks: setup-curator.yml
-
 - name: Generate certs
   include_tasks: gen-certs.yml
 
@@ -27,7 +24,10 @@
   include_tasks: configure-opensearch-dashboards.yml
 
 - name: Configure Logstash
-  include_tasks: configure-logstash-curator.yml
+  include_tasks: configure-logstash.yml
+
+- name: Configure ISM policy
+  include_tasks: configure-ism.yml
 
 - name: Web configuration
   include_tasks: web.yml

@@ -1,0 +1,33 @@
+---
+# NOTE: The ISM policy is automatically attached to the index, that
+# matches the template pattern. For example:
+# ism_template: {"intex_patterns": ["logstash-*"]}
+# any index that will be created with name "logstash-" will be automatically
+# attached to the policy.
+- name: Setup ISM
+  vars:
+    retention_time: "{{ tenant_configuration[item]['retention_time'] | default('14d') }}"
+  block:
+    - name: Create a ISM policy
+      uri:
+        url: "https://{{ fqdn }}:9200/_plugins/_ism/add/{{ index_name | default('universal') }}"
+        user: admin
+        password: "{{ admin }}"
+        force_basic_auth: yes
+        method: POST
+        body_format: json
+        body: { "policy_id": "{{ index_name | default('universal') }}-policy" }
+        status_code: 200, 409
+        validate_certs: "{{ validate_certs }}"
+
+    - name: Add template to policy
+      uri:
+        url: "https://{{ fqdn }}:9200/_plugins/_ism/policies/{{ index_name | default('universal') }}-policy"
+        user: admin
+        password: "{{ admin }}"
+        force_basic_auth: yes
+        method: PUT
+        body_format: json
+        body: "{{ lookup('template','./ism.json.j2') }}"
+        status_code: 201, 409
+        validate_certs: "{{ validate_certs }}"
