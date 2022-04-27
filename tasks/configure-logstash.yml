@@ -7,11 +7,10 @@
     group: "{{ logstash_gid }}"
   loop:
     - "/etc/logstash/conf.d"
-    - "/etc/logstash/curator.d"
     - "{{ logstash_log_path }}"
 
-- name: Generate files for logstash and curator
-  include_tasks: logstash-curator.yml
+- name: Generate files for logstash
+  include_tasks: logstash-configuration.yml
   loop: "{{ users | map(attribute='tenant') | unique | list }}"
   register: _logstash_indexes
 
@@ -54,13 +53,10 @@
     group: "{{ logstash_gid }}"
     recurse: true
 
-- name: Set permissions for curator directory
+- name: Delete curator directory
   file:
     path: /etc/logstash/curator.d
-    state: directory
-    owner: "{{ curator_uid }}"
-    group: "{{ curator_gid }}"
-    recurse: true
+    state: absent
 
 - include_tasks: container-service.yml
   vars:
@@ -74,10 +70,6 @@
       -v /etc/opensearch/certs/localCA.pem:/etc/opensearch/certs/localCA.pem:Z
       -v {{ logstash_log_path }}:/var/log/logstash:z
       {{ container_images['logstash'] }}
-
-- name: Pull curator image
-  shell: |
-    podman pull {{ container_images['curator'] }}
 
 - name: Restart logstash service
   service:

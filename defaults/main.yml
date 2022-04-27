@@ -1,19 +1,12 @@
 ---
 fqdn: elasticsearch.sftests.com
 
-curator_uid: "1000"
-curator_gid: "1000"
 elk_uid: "1000"
 elk_gid: "1000"
 container_images:
   opensearch: quay.io/software-factory/opensearch:1.2.4-1
   opensearch-dashboards: quay.io/software-factory/opensearch-dashboards:1.2.0-1
   logstash: quay.io/software-factory/logstash:7.10.1-1
-  curator: quay.io/software-factory/curator:5.7-1
-
-# NOTE: some packages like curator are availble in softwarefactory repo.
-# FIXME: Move curator to the container.
-sfrelease_package: https://softwarefactory-project.io/repos/sf-release-3.6.rpm
 
 # NOTE: if cluster_role is empty, it would configure Elasticsearch
 # as a single node cluster.
@@ -24,6 +17,7 @@ setup_ssl: false
 ssl_cert_file: /etc/letsencrypt/live/elasticsearch.sftests.com/cert.pem
 ssl_key_file: /etc/letsencrypt/live/elasticsearch.sftests.com/privkey.pem
 ssl_chain_file: /etc/letsencrypt/live/elasticsearch.sftests.com/fullchain.pem
+validate_certs: true
 
 # Setup Letsencrypt SSL cert for Opensearch service (NOT RECOMMENDED).
 # How to setup: https://github.com/opensearch-project/security/issues/52#issuecomment-937875037
@@ -40,7 +34,6 @@ opensearch_container_params: "--net host --pid host"
 
 logstash_uid: "1000"
 logstash_gid: "1000"
-logstash_retention_days: 7
 logstash_http_port: '9601'
 logstash_log_path: /mnt/logstash/logs
 logstash_maximum_heap_size: 512m
@@ -72,3 +65,9 @@ users: []
 #    role: "admin"
 #    password: "admin"
 #    tenant: "sftests.com"
+
+tenant_configuration: {}
+#  sftests.com:
+#    logstash_input_port: 9998
+#    kibana_autologin: "basic"
+#    retention_time: "14d"
