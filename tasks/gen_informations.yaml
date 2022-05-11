@@ -14,4 +14,4 @@
         {%- set new_tenant = new_tenant.update( {tenant | replace('.','_') | replace('-','_'): value } ) -%}
       {%- endfor -%}
       {{ new_tenant }}
-  no_log: true
+  no_log: "{{ hide_sensitive_logs | bool }}"

@@ -14,7 +14,7 @@
     owner: "{{ elk_uid }}"
     group: "{{ elk_gid }}"
     mode: '0640'
-  no_log: True
+  no_log: "{{ hide_sensitive_logs | bool }}"
   notify:
     - wait for opensearch service
     - restart opensearch-dashboards

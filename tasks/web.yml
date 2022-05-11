@@ -20,6 +20,14 @@
     path: /etc/httpd/conf.d/gateway-kibana.conf.j2
     state: absent
 
+# NOTE: Normally the readonly user password is showing on Opensearch dashboards
+# login page, but we don't want to show in the logs sensitive data.
+# This is a workaround for Zuul CI to avoid showing user credentials in log
+# steam.
+- name: Set readonly user as fact
+  set_fact:
+    readonly_users: "{{ users | selectattr('role', 'equalto', 'readonly') | list }}"
+
 - name: Generate kibana autologin location
   template:
     src: kibana_autologin-vhost.conf.j2
@@ -27,9 +35,9 @@
     mode: '0444'
     owner: root
     group: root
-  loop: "{{ users | selectattr('role', 'equalto', 'readonly') | list }}"
+  loop: "{{ readonly_users }}"
   register: _kibana_autologin_conf
-  no_log: True
+  no_log: "{{ hide_sensitive_logs | bool }}"
 
 - name: Remove welcome page
   file:

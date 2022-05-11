@@ -4,9 +4,9 @@
     - name: Gen plain basicauth
       set_fact:
         "{{ item.user }}_{{ item.tenant }}_plain": "{{ item.user }}_{{ item.tenant }}:{{ item.password }}"
-      no_log: True
+      no_log: "{{ hide_sensitive_logs | bool }}"
 
     - name: Encode plain basicauth
       set_fact:
         "{{ item.user }}_{{ item.tenant }}_basicauth": "{{ vars[ item.user + '_' + item.tenant + '_plain' ] | b64encode }}"
-      no_log: True
+      no_log: "{{ hide_sensitive_logs | bool }}"

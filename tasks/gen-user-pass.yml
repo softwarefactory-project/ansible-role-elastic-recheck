@@ -21,4 +21,4 @@
   when:
     - "'password' in item"
     - "'user' in item"
-  no_log: True
+  no_log: "{{ hide_sensitive_logs | bool }}"
