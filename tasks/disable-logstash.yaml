@@ -1,0 +1,13 @@
+---
+- name: Stop logstash service when setup disabled
+  become: true
+  block:
+    - name: Stop logstash service
+      service:
+        name: logstash
+        state: stopped
+
+    - name: Remove logstash directories
+      file:
+        path: /etc/logstash
+        state: absent

@@ -10,6 +10,7 @@
 
 - name: Setup Logstash
   include_tasks: setup-logstash.yml
+  when: setup_logstash
 
 - name: Generate certs
   include_tasks: gen-certs.yml
@@ -25,6 +26,11 @@
 
 - name: Configure Logstash
   include_tasks: configure-logstash.yml
+  when: setup_logstash
+
+- name: Stop Logstash when disabled
+  include_tasks: disable-logstash.yaml
+  when: not setup_logstash
 
 - name: Configure ISM policy
   include_tasks: configure-ism.yml
