@@ -2,10 +2,14 @@
 - name: Stop logstash service when setup disabled
   become: true
   block:
+    - name: Get service facts
+      service_facts:
+
     - name: Stop logstash service
       service:
         name: logstash
         state: stopped
+      when: "'logstash' in services"
 
     - name: Remove logstash directories
       file:
