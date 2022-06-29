@@ -12,7 +12,7 @@
     - "/mnt/opensearch/data"
     - "/mnt/opensearch/logs"
 
-- name: Create Elasticsearch config file
+- name: Create Opensearch config file
   template:
     src: templates/opensearch.yml.j2
     dest: "/etc/opensearch/opensearch.yml"
@@ -52,7 +52,7 @@
     pod_param: >
       {{ opensearch_container_params }}
       -e DISABLE_INSTALL_DEMO_CONFIG=true
-      -e "OPENSEARCH_JAVA_OPTS=-Xms{{ elasticsearch_minimum_heap_size }} -Xmx{{ elasticsearch_maximum_heap_size }} -Dlog4j2.formatMsgNoLookups=true"
+      -e "OPENSEARCH_JAVA_OPTS=-Xms{{ opensearch_minimum_heap_size }} -Xmx{{ opensearch_maximum_heap_size }} -Dlog4j2.formatMsgNoLookups=true"
       -v /mnt/opensearch/data:/usr/share/opensearch/data:z
       -v /mnt/opensearch/logs:/var/log/opensearch:z
       -v /etc/opensearch/certs/:/usr/share/opensearch/config/certs:Z

@@ -4,19 +4,19 @@
     # NOTE: move bcrypt password hash to htpasswd, because it was
     # not working correctly with Opensearch when container was not
     # running for some time.
-    - name: Set Elasticsearch users as a fact - internal user
+    - name: Set Opensearch users as a fact - internal user
       set_fact:
         "{{ item.user }}": "{{ item.password }}"
         "{{ item.user }}_hash": "{{  item.password | password_hash('bcrypt', rounds=12) }}"
       when: is_internal_user
 
-    # NOTE: for internal users, it would be: elasticsearch_admin and
-    # elasticsearch_admin_hash, where for external users:
-    # elasticsearch_admin_myinfra2 and elasticsearch_admin_myinfra2_hash
-    - name: Set Elasticsearch users as a fact
+    # NOTE: for internal users, it would be: opensearch_admin and
+    # opensearch_admin_hash, where for external users:
+    # opensearch_admin_myinfra2 and opensearch_admin_myinfra2_hash
+    - name: Set Opensearch users as a fact
       set_fact:
-        "elasticsearch_{{ item.user }}_{{ item.tenant }}": "{{ item.password }}"
-        "elasticsearch_{{ item.user }}_{{ item.tenant }}_hash": "{{ item.password | password_hash('bcrypt', rounds=12) }}"
+        "opensearch_{{ item.user }}_{{ item.tenant }}": "{{ item.password }}"
+        "opensearch_{{ item.user }}_{{ item.tenant }}_hash": "{{ item.password | password_hash('bcrypt', rounds=12) }}"
       when: not is_internal_user
   when:
     - "'password' in item"

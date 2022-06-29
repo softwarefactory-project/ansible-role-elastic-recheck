@@ -23,64 +23,64 @@
       shell: |
         openssl genrsa -out /etc/opensearch/certs/localCA-key.pem 2048 && \
         openssl req -new -x509 -sha256 -days 3650 \
-          -subj "/C=PL/ST=WROCLAW/L=WROCLAW/O=ElasticsearchSoftwareFactory" \
+          -subj "/C=PL/ST=WROCLAW/L=WROCLAW/O=OpensearchSoftwareFactory" \
           -key /etc/opensearch/certs/localCA-key.pem \
           -out /etc/opensearch/certs/localCA.pem
       register: _elk_ca_cert
       notify:
         - reconfigure security plugin in containers
-  when: not _ca_cert.stat.exists and elastic_ssl_cert_file == ''
+  when: not _ca_cert.stat.exists and opensearch_ssl_cert_file == ''
 
-- name: Generate certs for Elasticsearch
+- name: Generate certs for Opensearch
   block:
     - name: Check if Elastcisearch admin certs was done earlier
       stat:
-        path: "/etc/opensearch/certs/elasticsearch-admin.crt"
+        path: "/etc/opensearch/certs/opensearch-admin.crt"
       register: _elk_admin_cert
 
     - name: Generate admin certs
       shell: |
-        openssl genrsa -out /etc/opensearch/certs/elasticsearch-admin-key-temp.pem 2048 && \
-        openssl pkcs8 -inform PEM -outform PEM -in /etc/opensearch/certs/elasticsearch-admin-key-temp.pem \
-          -topk8 -nocrypt -v1 PBE-SHA1-3DES -out /etc/opensearch/certs/elasticsearch-admin.key && \
-        openssl req -new -key /etc/opensearch/certs/elasticsearch-admin.key \
-          -subj "/C=PL/ST=WROCLAW/L=WROCLAW/O=ElasticsearchSoftwareFactory/CN={{ fqdn }}" \
-          -out /etc/opensearch/certs/elasticsearch-admin.csr && \
-        openssl x509 -req -in /etc/opensearch/certs/elasticsearch-admin.csr \
+        openssl genrsa -out /etc/opensearch/certs/opensearch-admin-key-temp.pem 2048 && \
+        openssl pkcs8 -inform PEM -outform PEM -in /etc/opensearch/certs/opensearch-admin-key-temp.pem \
+          -topk8 -nocrypt -v1 PBE-SHA1-3DES -out /etc/opensearch/certs/opensearch-admin.key && \
+        openssl req -new -key /etc/opensearch/certs/opensearch-admin.key \
+          -subj "/C=PL/ST=WROCLAW/L=WROCLAW/O=OpensearchSoftwareFactory/CN={{ fqdn }}" \
+          -out /etc/opensearch/certs/opensearch-admin.csr && \
+        openssl x509 -req -in /etc/opensearch/certs/opensearch-admin.csr \
           -CA /etc/opensearch/certs/localCA.pem -days 3650 \
           -CAkey /etc/opensearch/certs/localCA-key.pem \
-          -CAcreateserial -sha256 -out /etc/opensearch/certs/elasticsearch-admin.crt
-      register: _elk_elasticsearch_cert
+          -CAcreateserial -sha256 -out /etc/opensearch/certs/opensearch-admin.crt
+      register: _elk_opensearch_cert
       when: not _elk_admin_cert.stat.exists
       notify:
         - reconfigure security plugin in containers
 
-    - name: Check if Elasticsearch client certs was done earlier
+    - name: Check if opensearch client certs was done earlier
       stat:
-        path: "/etc/opensearch/certs/elasticsearch-client.crt"
+        path: "/etc/opensearch/certs/opensearch-client.crt"
       register: _elk_client_cert
 
     # NOTE: client cert does not work. It would be done in other PS.
     - name: Generate client certs
       shell: |
-        openssl genrsa -out /etc/opensearch/certs/elasticsearch-client-key-temp.pem 2048 && \
-        openssl pkcs8 -inform PEM -outform PEM -in /etc/opensearch/certs/elasticsearch-client-key-temp.pem \
-          -topk8 -nocrypt -v1 PBE-SHA1-3DES -out /etc/opensearch/certs/elasticsearch-client.key && \
-        openssl req -new -key /etc/opensearch/certs/elasticsearch-client.key \
-          -subj "/C=PL/ST=WROCLAW/L=WROCLAW/O=ElasticsearchSoftwareFactory/CN={{ fqdn }}" \
-          -out /etc/opensearch/certs/elasticsearch-client.csr && \
-        openssl x509 -req -in /etc/opensearch/certs/elasticsearch-client.csr \
+        openssl genrsa -out /etc/opensearch/certs/opensearch-client-key-temp.pem 2048 && \
+        openssl pkcs8 -inform PEM -outform PEM -in /etc/opensearch/certs/opensearch-client-key-temp.pem \
+          -topk8 -nocrypt -v1 PBE-SHA1-3DES -out /etc/opensearch/certs/opensearch-client.key && \
+        openssl req -new -key /etc/opensearch/certs/opensearch-client.key \
+          -subj "/C=PL/ST=WROCLAW/L=WROCLAW/O=OpensearchSoftwareFactory/CN={{ fqdn }}" \
+          -out /etc/opensearch/certs/opensearch-client.csr && \
+        openssl x509 -req -in /etc/opensearch/certs/opensearch-client.csr \
           -CA /etc/opensearch/certs/localCA.pem -days 3650 \
           -CAkey /etc/opensearch/certs/localCA-key.pem \
-          -CAcreateserial -sha256 -out /etc/opensearch/certs/elasticsearch-client.crt
-      register: _elk_elasticsearch_cert
+          -CAcreateserial -sha256 -out /etc/opensearch/certs/opensearch-client.crt
+      register: _elk_opensearch_cert
       when: not _elk_client_cert.stat.exists
       notify:
         - reconfigure security plugin in containers
 
-    - name: Take elasticsearch subject - client
+    - name: Take opensearch subject - client
       shell: |
-        openssl x509 -subject -nameopt RFC2253 -noout -in /etc/opensearch/certs/elasticsearch-client.crt | sed 's/subject= //g' | sed 's/subject=//g'
+        openssl x509 -subject -nameopt RFC2253 -noout -in /etc/opensearch/certs/opensearch-client.crt | sed 's/subject= //g' | sed 's/subject=//g'
       register: elk_cert_subject_client
 
     - name: Copy CA cert
@@ -95,14 +95,14 @@
     - name: Trust generated cert
       command: update-ca-trust
 
-  when: elastic_ssl_cert_file == ''
+  when: opensearch_ssl_cert_file == ''
 
 - name: Configure Letsencrypt
   include_tasks: letsencrypt.yml
 
-- name: Take elasticsearch subject - admin
+- name: Take opensearch subject - admin
   shell: |
-    openssl x509 -subject -nameopt RFC2253 -noout -in /etc/opensearch/certs/elasticsearch-admin.crt | sed 's/subject= //g' | sed 's/subject=//g'
+    openssl x509 -subject -nameopt RFC2253 -noout -in /etc/opensearch/certs/opensearch-admin.crt | sed 's/subject= //g' | sed 's/subject=//g'
   register: elk_cert_subject
 
 - name: Set permissions to certs - opensearch

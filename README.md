@@ -12,7 +12,7 @@ moved to Keycloack auth system.
 Example
 -------
 
-Simply playbook for deploy a node with Elasticsearch and Kibana
+Simply playbook for deploy a node with Opensearch and Kibana
 on single machine:
 
 ```
@@ -122,9 +122,9 @@ later would be used by `sfconfig` tool.
 The `sfconfig.yaml` file needs to have a dedicated parameter:
 
 ```
-external_elasticsearch:
-  host: https://elasticsearch-host-2:9200
-  cacert_path: /etc/elasticsearch/certs/localCA.pem
+external_opensearch:
+  host: https://opensearch-host-2:9200
+  cacert_path: /etc/opensearch/certs/localCA.pem
   suffix: sftests_com
   users:
     curator_sftests_com:
@@ -138,22 +138,22 @@ external_elasticsearch:
       role: readonly
 
 logstash:
-  host: elasticsearch-host-2
+  host: opensearch-host-2
   port: 9999
 
 kibana:
   readonly_user_autologin: Basic
-  host_url: http://elasticsearch-host-2:5601
+  host_url: http://opensearch-host-2:5601
 ```
 
 Where:
 
-* in external_elasticsearch:
-- `host` - define Elasticsearch API url
+* in external_opensearch:
+- `host` - define Opensearch API url
 - `cacert_path` - CA authority cert that would be verified by Logstash on start
 - `suffix` - the tenant name; it would be used by Logstash to configure
              destination index pattern, where the metrics would be send
-- `users` - user definition that was also configured on Elasticsearch host.
+- `users` - user definition that was also configured on Opensearch host.
             NOTE: each user should have correct name, that include the
             tenant name. The `role` subkey is defining what type of users
             should be configured. Mostly it is used to setup correct user
@@ -177,14 +177,14 @@ Where:
                             parameter.
 - host_url - the Kibana service endpoint.
 
-Before you run the `sfconfig` tool, remember to add the external elasticsearch
+Before you run the `sfconfig` tool, remember to add the external opensearch
 fqdn into the network - static_hostnames, for example:
 
 ```
 network:
 (...)
   static_hostnames:
-  - "123.123.123.123 elasticsearch.sftests.com"
+  - "123.123.123.123 opensearch.sftests.com"
 ```
 
 Then run the `sfconfig` tool.
@@ -197,9 +197,9 @@ To configure that, set proper variables as in this example:
 ```
 vars:
   setup_ssl: true
-  ssl_cert_file: /etc/letsencrypt/live/elasticsearch.sftests.com/cert.pem
-  ssl_key_file: /etc/letsencrypt/live/elasticsearch.sftests.com/privkey.pem
-  ssl_chain_file: /etc/letsencrypt/live/elasticsearch.sftests.com/fullchain.pem
+  ssl_cert_file: /etc/letsencrypt/live/opensearch.sftests.com/cert.pem
+  ssl_key_file: /etc/letsencrypt/live/opensearch.sftests.com/privkey.pem
+  ssl_chain_file: /etc/letsencrypt/live/opensearch.sftests.com/fullchain.pem
 ```
 
 
@@ -214,12 +214,12 @@ If you would like to use it, set proper variables as in this example:
 vars:
   # Configure Opensearch SSL
   opensearch_custom_ssl: true
-  elastic_ssl_key_file: /etc/letsencrypt/live/elasticsearch.sftests.com/privkey.pem
-  elastic_ssl_cert_file: /etc/letsencrypt/live/elasticsearch.sftests.com/fullchain.pem
-  elastic_ssl_ca_url: https://letsencrypt.org/certs/lets-encrypt-r3.pem
+  opensearch_ssl_key_file: /etc/letsencrypt/live/opensearch.sftests.com/privkey.pem
+  opensearch_ssl_cert_file: /etc/letsencrypt/live/opensearch.sftests.com/fullchain.pem
+  opensearch_ssl_ca_url: https://letsencrypt.org/certs/lets-encrypt-r3.pem
 
   # Same variables are configuring Opensearch-dashboards SSL
   dashboards_custom_ssl: true
-  elastic_ssl_key_file: /etc/letsencrypt/live/elasticsearch.sftests.com/privkey.pem
-  elastic_ssl_cert_file: /etc/letsencrypt/live/elasticsearch.sftests.com/fullchain.pem
+  opensearch_ssl_key_file: /etc/letsencrypt/live/opensearch.sftests.com/privkey.pem
+  opensearch_ssl_cert_file: /etc/letsencrypt/live/opensearch.sftests.com/fullchain.pem
 ```

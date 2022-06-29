@@ -25,6 +25,6 @@
     /usr/share/opensearch/plugins/opensearch-security/tools/securityadmin.sh
     -cd /usr/share/opensearch/plugins/opensearch-security/securityconfig/
     -icl -nhnv -cacert /usr/share/opensearch/config/certs/localCA.pem
-    -cert /usr/share/opensearch/config/certs/elasticsearch-admin.crt
-    -key /usr/share/opensearch/config/certs/elasticsearch-admin.key
+    -cert /usr/share/opensearch/config/certs/opensearch-admin.crt
+    -key /usr/share/opensearch/config/certs/opensearch-admin.key
     -h {{ ansible_default_ipv4.address }}'

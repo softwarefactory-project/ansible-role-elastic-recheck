@@ -5,7 +5,7 @@
     - name: Setup Opendistro Elasticsearch
       include_role:
         name: ansible-role-elastic-recheck
-        tasks_from: setup-elasticsearch.yml
+        tasks_from: setup-opensearch.yml
 
     - name: Setup Opendistro Kibana
       include_role:

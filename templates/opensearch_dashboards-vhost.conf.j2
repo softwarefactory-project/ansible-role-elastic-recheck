@@ -42,4 +42,8 @@
         ProxyPass https://{{ fqdn }}:9200
         ProxyPassReverse https://{{ fqdn }}:9200
     </Location>
+    <Location /opensearch>
+        ProxyPass https://{{ fqdn }}:9200
+        ProxyPassReverse https://{{ fqdn }}:9200
+    </Location>
 </IfModule>

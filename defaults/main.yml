@@ -1,5 +1,5 @@
 ---
-fqdn: elasticsearch.sftests.com
+fqdn: opensearch.sftests.com
 
 setup_logstash: true
 
@@ -19,21 +19,21 @@ cluster_role: ''
 
 # Cert for Apache2 conf
 setup_ssl: false
-ssl_cert_file: /etc/letsencrypt/live/elasticsearch.sftests.com/cert.pem
-ssl_key_file: /etc/letsencrypt/live/elasticsearch.sftests.com/privkey.pem
-ssl_chain_file: /etc/letsencrypt/live/elasticsearch.sftests.com/fullchain.pem
+ssl_cert_file: /etc/letsencrypt/live/opensearch.sftests.com/cert.pem
+ssl_key_file: /etc/letsencrypt/live/opensearch.sftests.com/privkey.pem
+ssl_chain_file: /etc/letsencrypt/live/opensearch.sftests.com/fullchain.pem
 validate_certs: true
 
 # Setup Letsencrypt SSL cert for Opensearch service (NOT RECOMMENDED).
 # How to setup: https://github.com/opensearch-project/security/issues/52#issuecomment-937875037
 opensearch_custom_ssl: false
 dashboards_custom_ssl: false
-elastic_ssl_cert_file: ''
-elastic_ssl_key_file: ''
-elastic_ssl_ca_url: ''
+opensearch_ssl_cert_file: ''
+opensearch_ssl_key_file: ''
+opensearch_ssl_ca_url: ''
 
-elasticsearch_maximum_heap_size: 512m
-elasticsearch_minimum_heap_size: 512m
+opensearch_maximum_heap_size: 512m
+opensearch_minimum_heap_size: 512m
 # NOTE: you can add --memory param to limit memory consuming by the pod.
 opensearch_container_params: "--net host --pid host"
 

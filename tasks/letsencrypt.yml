@@ -6,39 +6,39 @@
     # NOTE: the file should be: fullchain.pem
     - name: Copy cert to default location
       copy:
-        src: "{{ elastic_ssl_cert_file }}"
-        dest: /etc/opensearch/certs/elasticsearch-admin.crt
+        src: "{{ opensearch_ssl_cert_file }}"
+        dest: /etc/opensearch/certs/opensearch-admin.crt
         mode: '0640'
         remote_src: true
 
     # NOTE: the file should be converted to PKCS#8 privkey.pem
     - name: Copy key to default location
       copy:
-        src: "{{ elastic_ssl_key_file }}"
-        dest: /etc/opensearch/certs/elasticsearch-admin-non-pkcs8.key
+        src: "{{ opensearch_ssl_key_file }}"
+        dest: /etc/opensearch/certs/opensearch-admin-non-pkcs8.key
         mode: '0640'
         remote_src: true
 
     - name: Convert privkey to pkcs8 format
       shell: |
-        openssl pkcs8 -topk8 -nocrypt -in /etc/opensearch/certs/elasticsearch-admin-non-pkcs8.key -out /etc/opensearch/certs/elasticsearch-admin.key
-      when: elastic_ssl_key_file != ''
+        openssl pkcs8 -topk8 -nocrypt -in /etc/opensearch/certs/opensearch-admin-non-pkcs8.key -out /etc/opensearch/certs/opensearch-admin.key
+      when: opensearch_ssl_key_file != ''
 
     # NOTE: Get last CA cert for https://letsencrypt.org/certificates/
     - name: Copy CA to default location
       get_url:
-        url: "{{ elastic_ssl_ca_url }}"
+        url: "{{ opensearch_ssl_ca_url }}"
         dest: /etc/opensearch/certs/localCA.pem
         mode: '0640'
 
-  when: elastic_ssl_cert_file != '' and elastic_ssl_key_file != '' and elastic_ssl_ca_url != '' and opensearch_custom_ssl
+  when: opensearch_ssl_cert_file != '' and opensearch_ssl_key_file != '' and opensearch_ssl_ca_url != '' and opensearch_custom_ssl
 
 - name: Configure custom cert for Opensearch dashboards
   block:
     # NOTE: the file should be: fullchain.pem
     - name: Copy cert to default location
       copy:
-        src: "{{ elastic_ssl_cert_file }}"
+        src: "{{ opensearch_ssl_cert_file }}"
         dest: /etc/opensearch/certs/opensearch-dashboards.crt
         mode: '0640'
         remote_src: true
@@ -46,8 +46,8 @@
     # NOTE: this file should be: privkey.pem
     - name: Copy key to default location
       copy:
-        src: "{{ elastic_ssl_key_file }}"
+        src: "{{ opensearch_ssl_key_file }}"
         dest: /etc/opensearch/certs/opensearch-dashboards.key
         mode: '0640'
         remote_src: true
-  when: elastic_ssl_cert_file != '' and elastic_ssl_key_file != '' and dashboards_custom_ssl
+  when: opensearch_ssl_cert_file != '' and opensearch_ssl_key_file != '' and dashboards_custom_ssl

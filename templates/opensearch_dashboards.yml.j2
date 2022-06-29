@@ -17,10 +17,10 @@ elasticsearch.password: {{ kibanaserver }}
 
 opensearch_security.multitenancy.tenants.enable_private: false
 opensearch_security.multitenancy.enabled: true
-opensearch_security.multitenancy.tenants.preferred: [ "{{ elasticsearch_tenants }}" ]
+opensearch_security.multitenancy.tenants.preferred: [ "{{ opensearch_tenants }}" ]
 opensearch_security.multitenancy.enable_filter: true
 opensearch_security.multitenancy.tenants.enable_global: false
-opensearch_security.basicauth.login.title: "The Software Factory Elasticsearch"
+opensearch_security.basicauth.login.title: "The Software Factory Opensearch"
 opensearch_security.basicauth.login.subtitle: "{{ kibana_loginscreen_text }}"
 
 # additional settings that were not listened in configure-kibana,

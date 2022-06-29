@@ -19,9 +19,9 @@
   register: _kibana_autologin_conf
   no_log: "{{ hide_sensitive_logs | bool }}"
 
-- name: Get elasticsearch tenant list
+- name: Get opensearch tenant list
   set_fact:
-    elasticsearch_tenants: "{{ users | map(attribute='tenant') | unique | list | join(',') }}"
+    opensearch_tenants: "{{ users | map(attribute='tenant') | unique | list | join(',') }}"
     kibana_loginscreen_text: "{% for user in users %}{% if user['role'] == 'readonly' %}Tenant: {{ user['tenant'] }} user: {{ user['user'] + '_' + user['tenant'] }} password: {{ user['password'] }}{% endif %}{% endfor %}"
 
 - name: Set the security plugin configuration
@@ -43,7 +43,7 @@
   notify:
     - reconfigure security plugin in containers
 
-- name: Ensure that Elasticsearch service is running before reconfiguration
+- name: Ensure that Opensearch service is running before reconfiguration
   systemd:
     name: opensearch
     state: started
