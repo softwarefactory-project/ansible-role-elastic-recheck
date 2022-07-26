@@ -1,0 +1,69 @@
+---
+- name: "Check if CA cert was done earlier"
+  stat:
+    path: "{{ main_path }}/localCA.pem"
+  register: _elk_cert
+
+- name: Generate CA cert
+  block:
+    - name: Install required packages
+      package:
+        name:
+          - openssl
+          - python3-cryptography
+        state: present
+
+    - name: Gen CA privkey
+      openssl_privatekey:
+        path: "{{ main_path }}/localCA.key"
+
+    - name: Generate CA csr
+      openssl_csr:
+        path: "{{ main_path }}/localCA.csr"
+        privatekey_path: "{{ main_path }}/localCA.key"
+        country_name: PL
+        organization_name: SoftwareFactory
+        basic_constraints:
+          - CA:TRUE
+        key_usage:
+          - cRLSign
+          - keyCertSign
+          - keyEncipherment
+          - digitalSignature
+        key_usage_critical: true
+        extended_key_usage:
+          - clientAuth
+          - serverAuth
+
+    - name: Generate selfsigned CA certificate
+      openssl_certificate:
+        path: "{{ main_path }}/localCA.pem"
+        csr_path: "{{ main_path }}/localCA.csr"
+        privatekey_path: "{{ main_path }}/localCA.key"
+        provider: selfsigned
+
+    - name: Copy CA cert
+      copy:
+        src: "{{ main_path }}/localCA.pem"
+        dest: "/etc/pki/ca-trust/source/anchors/localCA.pem"
+        mode: '0644'
+        owner: root
+        group: root
+        remote_src: true
+
+    - name: Copy CA cert to Opensearch Dashboards dir
+      copy:
+        src: "{{ main_path }}/{{ item }}"
+        dest: "{{ dashboard_main_path }}/{{ item }}"
+        mode: '0644'
+        owner: "{{ elk_uid }}"
+        group: "{{ elk_gid }}"
+        remote_src: true
+      loop:
+        - "localCA.pem"
+        - "localCA.key"
+
+    - name: Trust generated cert
+      command: update-ca-trust
+
+  when: not _elk_cert.stat.exists and opensearch_ssl_cert_file == ''

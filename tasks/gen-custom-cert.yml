@@ -1,0 +1,47 @@
+---
+- name: "Check if {{ name }} cert was done earlier"
+  stat:
+    path: "{{ main_path }}/opensearch-{{ name }}.crt"
+  register: _elk_cert
+
+- name: Generate certs
+  block:
+    # NOTE: Normally the ansible openssl_privatekey module have an parameter
+    # "format: pkcs8", but our infra Ansible does not have it.
+    - name: "Gen privkey for {{ name }}"
+      openssl_privatekey:
+        path: "{{ main_path }}/opensearch-{{ name }}-non-pkcs8.key"
+
+    - name: "Convert {{ name }} privkey to pkcs8"
+      shell: >
+        openssl pkcs8 -topk8 -nocrypt
+        -in {{ main_path }}/opensearch-{{ name }}-non-pkcs8.key
+        -out {{ main_path }}/opensearch-{{ name }}.key
+
+    - name: "Generate csr for {{ name }}"
+      openssl_csr:
+        path: "{{ main_path }}/opensearch-{{ name }}.csr"
+        privatekey_path: "{{ main_path }}/opensearch-{{ name }}.key"
+        country_name: PL
+        organization_name: SoftwareFactory
+        common_name: "{{ fqdn }}"
+        subject_alt_name:
+          - "DNS:{{ ansible_fqdn }}"
+          - "DNS:{{ fqdn }}"
+          - "DNS:localhost"
+          - "IP:127.0.0.1"
+          - "IP:{{ ansible_default_ipv4.address }}"
+        extended_key_usage:
+          - clientAuth
+          - serverAuth
+
+    - name: "Generate a self signed cert for {{ name }}"
+      openssl_certificate:
+        path: "{{ main_path }}/opensearch-{{ name }}.crt"
+        csr_path: "{{ main_path }}/opensearch-{{ name }}.csr"
+        ownca_not_after: "+3650d"
+        ownca_path: "{{ main_path }}/localCA.pem"
+        ownca_privatekey_path: "{{ main_path }}/localCA.key"
+        provider: ownca
+
+  when: not _elk_cert.stat.exists

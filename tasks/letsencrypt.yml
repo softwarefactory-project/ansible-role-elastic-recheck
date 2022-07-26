@@ -7,7 +7,7 @@
     - name: Copy cert to default location
       copy:
         src: "{{ opensearch_ssl_cert_file }}"
-        dest: /etc/opensearch/certs/opensearch-admin.crt
+        dest: /etc/opensearch/certs/opensearch/opensearch-admin.crt
         mode: '0640'
         remote_src: true
 
@@ -15,23 +15,23 @@
     - name: Copy key to default location
       copy:
         src: "{{ opensearch_ssl_key_file }}"
-        dest: /etc/opensearch/certs/opensearch-admin-non-pkcs8.key
+        dest: /etc/opensearch/certs/opensearch/opensearch-admin-non-pkcs8.key
         mode: '0640'
         remote_src: true
 
     - name: Convert privkey to pkcs8 format
       shell: |
-        openssl pkcs8 -topk8 -nocrypt -in /etc/opensearch/certs/opensearch-admin-non-pkcs8.key -out /etc/opensearch/certs/opensearch-admin.key
+        openssl pkcs8 -topk8 -nocrypt -in /etc/opensearch/certs/opensearch/opensearch-admin-non-pkcs8.key -out /etc/opensearch/certs/opensearch/opensearch-admin.key
       when: opensearch_ssl_key_file != ''
 
     # NOTE: Get last CA cert for https://letsencrypt.org/certificates/
     - name: Copy CA to default location
       get_url:
         url: "{{ opensearch_ssl_ca_url }}"
-        dest: /etc/opensearch/certs/localCA.pem
+        dest: /etc/opensearch/certs/opensearch/localCA.pem
         mode: '0640'
 
-  when: opensearch_ssl_cert_file != '' and opensearch_ssl_key_file != '' and opensearch_ssl_ca_url != '' and opensearch_custom_ssl
+  when: opensearch_ssl_cert_file != '' and opensearch_ssl_key_file != '' and opensearch_ssl_ca_url != ''
 
 - name: Configure custom cert for Opensearch dashboards
   block:
@@ -39,7 +39,7 @@
     - name: Copy cert to default location
       copy:
         src: "{{ opensearch_ssl_cert_file }}"
-        dest: /etc/opensearch/certs/opensearch-dashboards.crt
+        dest: /etc/opensearch/certs/opensearch-dashboards/opensearch-dashboards.crt
         mode: '0640'
         remote_src: true
 
@@ -47,7 +47,7 @@
     - name: Copy key to default location
       copy:
         src: "{{ opensearch_ssl_key_file }}"
-        dest: /etc/opensearch/certs/opensearch-dashboards.key
+        dest: /etc/opensearch/certs/opensearch-dashboards/opensearch-dashboards.key
         mode: '0640'
         remote_src: true
-  when: opensearch_ssl_cert_file != '' and opensearch_ssl_key_file != '' and dashboards_custom_ssl
+  when: opensearch_ssl_cert_file != '' and opensearch_ssl_key_file != ''

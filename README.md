@@ -15,7 +15,7 @@ Example
 Simply playbook for deploy a node with Opensearch and Kibana
 on single machine:
 
-```
+```yaml
 - host: somehost
   become: true
   vars:
@@ -60,7 +60,7 @@ on single machine:
 
 Where in `vars` is including user definition, that looks like:
 
-```
+```yaml
   vars:
     internal_users:
       - user: "admin"
@@ -83,12 +83,13 @@ configuration and the user should not be changed.
 
 The `users` dict is "mapped" in Ansible roles with convention:
 
-```
+```yaml
 <user>_<tenant | replace('.', '_') | replace('-', '_')>
 ```
 
 For example, when user definition looks like:
-```
+
+```yaml
     users:
       - {user: "admin", role: "admin", password: "admin", tenant: 'sftests.com'}
 ```
@@ -121,10 +122,10 @@ later would be used by `sfconfig` tool.
 
 The `sfconfig.yaml` file needs to have a dedicated parameter:
 
-```
+```yaml
 external_opensearch:
   host: https://opensearch-host-2:9200
-  cacert_path: /etc/opensearch/certs/localCA.pem
+  cacert_path: /etc/opensearch/opensearch/certs/localCA.pem
   suffix: sftests_com
   users:
     curator_sftests_com:
@@ -180,7 +181,7 @@ Where:
 Before you run the `sfconfig` tool, remember to add the external opensearch
 fqdn into the network - static_hostnames, for example:
 
-```
+```yaml
 network:
 (...)
   static_hostnames:
@@ -194,7 +195,7 @@ Then run the `sfconfig` tool.
 The role can enable SSL support for the frontend service like Apache2.
 To configure that, set proper variables as in this example:
 
-```
+```yaml
 vars:
   setup_ssl: true
   ssl_cert_file: /etc/letsencrypt/live/opensearch.sftests.com/cert.pem
@@ -210,16 +211,14 @@ This role is configuring Opensearch to use Letsencrypt certs, but it is not
 recommended.
 If you would like to use it, set proper variables as in this example:
 
-```
+```yaml
 vars:
   # Configure Opensearch SSL
-  opensearch_custom_ssl: true
   opensearch_ssl_key_file: /etc/letsencrypt/live/opensearch.sftests.com/privkey.pem
   opensearch_ssl_cert_file: /etc/letsencrypt/live/opensearch.sftests.com/fullchain.pem
   opensearch_ssl_ca_url: https://letsencrypt.org/certs/lets-encrypt-r3.pem
 
   # Same variables are configuring Opensearch-dashboards SSL
-  dashboards_custom_ssl: true
   opensearch_ssl_key_file: /etc/letsencrypt/live/opensearch.sftests.com/privkey.pem
   opensearch_ssl_cert_file: /etc/letsencrypt/live/opensearch.sftests.com/fullchain.pem
 ```

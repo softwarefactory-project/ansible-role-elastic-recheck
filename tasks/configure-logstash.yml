@@ -20,7 +20,7 @@
   copy:
     content: |
       http.port: {{ logstash_http_port }}
-      http.host: {{ ansible_default_ipv4.address }}
+      http.host: {{ fqdn }}
       log.level: info
       path.logs: /var/log/logstash
     dest: /etc/logstash/logstash.yml
@@ -67,7 +67,7 @@
       -v /etc/logstash/logstash.yml:/usr/share/logstash/config/logstash.yml:z
       -v /etc/logstash/jvm.options:/usr/share/logstash/config/jvm.options:z
       -v /etc/logstash/conf.d:/usr/share/logstash/pipeline:z
-      -v /etc/opensearch/certs/localCA.pem:/etc/opensearch/certs/localCA.pem:Z
+      -v /etc/opensearch/certs/opensearch/localCA.pem:/etc/opensearch/certs/localCA.pem:Z
       -v {{ logstash_log_path }}:/var/log/logstash:z
       {{ container_images['logstash'] }}
 

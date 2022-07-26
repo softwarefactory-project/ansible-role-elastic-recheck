@@ -28,6 +28,6 @@
     pod_param: >
       {{ opensearch_dashboards_container_params }}
       -e OPENSEARCH_HOSTS='["https://{{ ansible_default_ipv4.address }}:9200"]'
-      -v /etc/opensearch/certs/:/usr/share/opensearch/config/certs:Z
+      -v /etc/opensearch/certs/opensearch-dashboards:/usr/share/opensearch-dashboards/config/certs/:Z
       -v /etc/opensearch/opensearch_dashboards.yml:/usr/share/opensearch-dashboards/config/opensearch_dashboards.yml:z
       {{ container_images['opensearch-dashboards'] }}

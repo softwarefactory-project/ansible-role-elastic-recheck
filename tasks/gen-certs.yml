@@ -1,99 +1,41 @@
 ---
 - name: Create cert dir - opensearch
   file:
-    path: "/etc/opensearch/certs"
+    path: "/etc/opensearch/certs/{{ item }}"
     owner: "{{ elk_uid }}"
     group: "{{ elk_gid }}"
     state: directory
     mode: '0750'
+  loop:
+    - "opensearch"
+    - "opensearch-dashboards"
 
-- name: Check if CA certs was done earlier
-  stat:
-    path: "/etc/opensearch/certs/localCA.pem"
-  register: _ca_cert
-
-- name: Generate CA cert
+- name: Generate self signed certs
   block:
-    - name: Install required packages
-      package:
-        name: openssl
-        state: present
-
+    # Gen CA
     - name: Generate CA cert
-      shell: |
-        openssl genrsa -out /etc/opensearch/certs/localCA-key.pem 2048 && \
-        openssl req -new -x509 -sha256 -days 3650 \
-          -subj "/C=PL/ST=WROCLAW/L=WROCLAW/O=OpensearchSoftwareFactory" \
-          -key /etc/opensearch/certs/localCA-key.pem \
-          -out /etc/opensearch/certs/localCA.pem
-      register: _elk_ca_cert
-      notify:
-        - reconfigure security plugin in containers
-  when: not _ca_cert.stat.exists and opensearch_ssl_cert_file == ''
+      include_tasks: gen-ca-cert.yml
+      vars:
+        main_path: "/etc/opensearch/certs/opensearch/"
+        dashboard_main_path: "/etc/opensearch/certs/opensearch-dashboards/"
 
-- name: Generate certs for Opensearch
-  block:
-    - name: Check if Elastcisearch admin certs was done earlier
-      stat:
-        path: "/etc/opensearch/certs/opensearch-admin.crt"
-      register: _elk_admin_cert
+    - name: Generate CA cert - Admin
+      include_tasks: gen-custom-cert.yml
+      vars:
+        main_path: "/etc/opensearch/certs/opensearch/"
+        name: "admin"
 
-    - name: Generate admin certs
-      shell: |
-        openssl genrsa -out /etc/opensearch/certs/opensearch-admin-key-temp.pem 2048 && \
-        openssl pkcs8 -inform PEM -outform PEM -in /etc/opensearch/certs/opensearch-admin-key-temp.pem \
-          -topk8 -nocrypt -v1 PBE-SHA1-3DES -out /etc/opensearch/certs/opensearch-admin.key && \
-        openssl req -new -key /etc/opensearch/certs/opensearch-admin.key \
-          -subj "/C=PL/ST=WROCLAW/L=WROCLAW/O=OpensearchSoftwareFactory/CN={{ fqdn }}" \
-          -out /etc/opensearch/certs/opensearch-admin.csr && \
-        openssl x509 -req -in /etc/opensearch/certs/opensearch-admin.csr \
-          -CA /etc/opensearch/certs/localCA.pem -days 3650 \
-          -CAkey /etc/opensearch/certs/localCA-key.pem \
-          -CAcreateserial -sha256 -out /etc/opensearch/certs/opensearch-admin.crt
-      register: _elk_opensearch_cert
-      when: not _elk_admin_cert.stat.exists
-      notify:
-        - reconfigure security plugin in containers
+    - name: Generate CA cert - Client
+      include_tasks: gen-custom-cert.yml
+      vars:
+        main_path: "/etc/opensearch/certs/opensearch/"
+        name: "client"
 
-    - name: Check if opensearch client certs was done earlier
-      stat:
-        path: "/etc/opensearch/certs/opensearch-client.crt"
-      register: _elk_client_cert
-
-    # NOTE: client cert does not work. It would be done in other PS.
-    - name: Generate client certs
-      shell: |
-        openssl genrsa -out /etc/opensearch/certs/opensearch-client-key-temp.pem 2048 && \
-        openssl pkcs8 -inform PEM -outform PEM -in /etc/opensearch/certs/opensearch-client-key-temp.pem \
-          -topk8 -nocrypt -v1 PBE-SHA1-3DES -out /etc/opensearch/certs/opensearch-client.key && \
-        openssl req -new -key /etc/opensearch/certs/opensearch-client.key \
-          -subj "/C=PL/ST=WROCLAW/L=WROCLAW/O=OpensearchSoftwareFactory/CN={{ fqdn }}" \
-          -out /etc/opensearch/certs/opensearch-client.csr && \
-        openssl x509 -req -in /etc/opensearch/certs/opensearch-client.csr \
-          -CA /etc/opensearch/certs/localCA.pem -days 3650 \
-          -CAkey /etc/opensearch/certs/localCA-key.pem \
-          -CAcreateserial -sha256 -out /etc/opensearch/certs/opensearch-client.crt
-      register: _elk_opensearch_cert
-      when: not _elk_client_cert.stat.exists
-      notify:
-        - reconfigure security plugin in containers
-
-    - name: Take opensearch subject - client
-      shell: |
-        openssl x509 -subject -nameopt RFC2253 -noout -in /etc/opensearch/certs/opensearch-client.crt | sed 's/subject= //g' | sed 's/subject=//g'
-      register: elk_cert_subject_client
-
-    - name: Copy CA cert
-      copy:
-        src: "/etc/opensearch/certs/localCA.pem"
-        dest: /etc/pki/ca-trust/source/anchors/localCA.pem
-        mode: '0644'
-        owner: root
-        group: root
-        remote_src: true
-
-    - name: Trust generated cert
-      command: update-ca-trust
+    - name: Generate CA cert - Dashboards
+      include_tasks: gen-custom-cert.yml
+      vars:
+        main_path: "/etc/opensearch/certs/opensearch-dashboards/"
+        name: "dashboards"
 
   when: opensearch_ssl_cert_file == ''
 
@@ -102,7 +44,7 @@
 
 - name: Take opensearch subject - admin
   shell: |
-    openssl x509 -subject -nameopt RFC2253 -noout -in /etc/opensearch/certs/opensearch-admin.crt | sed 's/subject= //g' | sed 's/subject=//g'
+    openssl x509 -subject -nameopt RFC2253 -noout -in /etc/opensearch/certs/opensearch/opensearch-admin.crt | sed 's/subject= //g' | sed 's/subject=//g'
   register: elk_cert_subject
 
 - name: Set permissions to certs - opensearch

@@ -26,8 +26,6 @@ validate_certs: true
 
 # Setup Letsencrypt SSL cert for Opensearch service (NOT RECOMMENDED).
 # How to setup: https://github.com/opensearch-project/security/issues/52#issuecomment-937875037
-opensearch_custom_ssl: false
-dashboards_custom_ssl: false
 opensearch_ssl_cert_file: ''
 opensearch_ssl_key_file: ''
 opensearch_ssl_ca_url: ''

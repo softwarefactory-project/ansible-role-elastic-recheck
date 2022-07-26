@@ -34,8 +34,8 @@
     {% endif %}
 
     <Location "/analytics">
-        ProxyPass http://{{ fqdn }}:5601
-        ProxyPassReverse http://{{ fqdn }}:5601
+        ProxyPass https://{{ fqdn }}:5601
+        ProxyPassReverse https://{{ fqdn }}:5601
     </Location>
 
     <Location /elasticsearch>

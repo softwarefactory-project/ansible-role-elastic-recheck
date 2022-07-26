@@ -20,8 +20,8 @@
     RequestHeader set "Authorization" "Basic {{ vars[item.user + '_' + item.tenant + '_basicauth' ] }}"
 {% endif %}
 
-    ProxyPass http://{{ ansible_default_ipv4.address }}:5601
-    ProxyPassReverse http://{{ ansible_default_ipv4.address }}:5601
+    ProxyPass https://{{ fqdn }}:5601
+    ProxyPassReverse https://{{ fqdn }}:5601
 
     RewriteEngine on
     RewriteCond %{QUERY_STRING} ^$
