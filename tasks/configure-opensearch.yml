@@ -11,21 +11,29 @@
     - "/etc/opensearch"
     - "/mnt/opensearch/data"
     - "/mnt/opensearch/logs"
+    - "/mnt/opensearch/logs/others"
 
 - name: Create Opensearch config file
   template:
     src: templates/opensearch.yml.j2
     dest: "/etc/opensearch/opensearch.yml"
+    owner: "{{ elk_uid }}"
+    group: "{{ elk_gid }}"
+    mode: "0640"
   notify:
     - restart opensearch
     - wait for opensearch service
 
-- name: Set permissions for opensearch config file
-  file:
-    path: "/etc/opensearch/opensearch.yml"
+- name: Create log4j2.properties file
+  copy:
+    src: log4j2.properties
+    dest: "/etc/opensearch/log4j2.properties"
     owner: "{{ elk_uid }}"
     group: "{{ elk_gid }}"
     mode: "0640"
+  notify:
+    - restart opensearch
+    - wait for opensearch service
 
 # https://opensearch.org/docs/opensearch/install/important-settings/
 - name: Set important settings for Opensearch container
@@ -43,7 +51,7 @@
       podman exec opensearch
       bash -c 'JAVA_HOME=/usr/share/opensearch/jdk
       /usr/share/opensearch/plugins/opensearch-security/tools/securityadmin.sh
-      -cd /usr/share/opensearch/plugins/opensearch-security/securityconfig/
+      -cd /usr/share/opensearch/config/opensearch-security/
       -icl -nhnv -cacert /usr/share/opensearch/config/certs/localCA.pem
       -cert /usr/share/opensearch/config/certs/opensearch-admin.crt
       -key /usr/share/opensearch/config/certs/opensearch-admin.key
@@ -71,11 +79,16 @@
       -e "OPENSEARCH_JAVA_OPTS=-Xms{{ opensearch_minimum_heap_size }} -Xmx{{ opensearch_maximum_heap_size }} -Dlog4j2.formatMsgNoLookups=true"
       -v /mnt/opensearch/data:/usr/share/opensearch/data:z
       -v /mnt/opensearch/logs:/var/log/opensearch:z
+      -v /mnt/opensearch/logs/others:/usr/share/opensearch/logs:z
       -v /etc/opensearch/certs/opensearch:/usr/share/opensearch/config/certs:Z
       -v /etc/opensearch/opensearch.yml:/usr/share/opensearch/config/opensearch.yml:z
-      -v /etc/opensearch/internal_users.yml:/usr/share/opensearch/plugins/opensearch-security/securityconfig/internal_users.yml:z
-      -v /etc/opensearch/roles_mapping.yml:/usr/share/opensearch/plugins/opensearch-security/securityconfig/roles_mapping.yml:z
-      -v /etc/opensearch/tenants.yml:/usr/share/opensearch/plugins/opensearch-security/securityconfig/tenants.yml:z
-      -v /etc/opensearch/roles.yml:/usr/share/opensearch/plugins/opensearch-security/securityconfig/roles.yml:z
-      -v /etc/opensearch/action_groups.yml:/usr/share/opensearch/plugins/opensearch-security/securityconfig/action_groups.yml:z
+      -v /etc/opensearch/internal_users.yml:/usr/share/opensearch/config/opensearch-security/internal_users.yml:z
+      -v /etc/opensearch/roles_mapping.yml:/usr/share/opensearch/config/opensearch-security/roles_mapping.yml:z
+      -v /etc/opensearch/tenants.yml:/usr/share/opensearch/config/opensearch-security/tenants.yml:z
+      -v /etc/opensearch/roles.yml:/usr/share/opensearch/config/opensearch-security/roles.yml:z
+      -v /etc/opensearch/action_groups.yml:/usr/share/opensearch/config/opensearch-security/action_groups.yml:z
+      -v /etc/opensearch/nodes_dn.yml:/usr/share/opensearch/config/opensearch-security//nodes_dn.yml:z
+      -v /etc/opensearch/whitelist.yml:/usr/share/opensearch/config/opensearch-security/whitelist.yml:z
+      -v /etc/opensearch/config.yml:/usr/share/opensearch/config/opensearch-security/config.yml:z
+      -v /etc/opensearch/log4j2.properties:/usr/share/opensearch/config/log4j2.properties:z
       {{ container_images['opensearch'] }}
