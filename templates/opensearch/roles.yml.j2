@@ -147,6 +147,8 @@ kibana_viewer_{{ user.tenant }}:
       - "?kibana"
       - "logstash-{{ user.tenant }}-*"
       - "zuul-{{ user.tenant }}.*"
+      - "performance-{{ user.tenant }}-*"
+      - "subunit-{{ user.tenant }}-*"
     allowed_actions:
       - "read"
       - "get"
@@ -198,6 +200,8 @@ kibana_viewer_{{ user.tenant }}:
   index_permissions:
     - index_patterns:
         - "logstash-{{ user.tenant }}-*"
+        - "performance-{{ user.tenant }}-*"
+        - "subunit-{{ user.tenant }}-*"
       allowed_actions:
         - "crud"
         - "create_index"
