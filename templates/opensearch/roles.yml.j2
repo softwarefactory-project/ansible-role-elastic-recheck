@@ -141,6 +141,7 @@ kibana_viewer_{{ user.tenant }}:
   reserved: true
   cluster_permissions:
     - "cluster_composite_ops_ro"
+    - "cluster:monitor/main"
   index_permissions:
   - index_patterns:
       - "?kibana*"
@@ -155,6 +156,7 @@ kibana_viewer_{{ user.tenant }}:
       - "search"
       - "indices:monitor/stats"
       - "indices:monitor/recovery"
+      - "indices:admin/mappings/get"
   tenant_permissions:
     - tenant_patterns:
         - "{{ user.tenant }}"

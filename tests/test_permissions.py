@@ -103,7 +103,7 @@ class TestClassSingleTenant:
     def test_no_index_specified(self):
         r = self.user_session.get(self.opensearch_api_url,
                                   verify=self.insecure)
-        assert r.status_code == 403
+        assert r.status_code == 200
         r = self.admin_session.get(self.opensearch_api_url,
                                    verify=self.insecure)
         assert r.status_code == 200
@@ -166,7 +166,7 @@ class TestClassSingleTenant:
     def test_read_index_mapping(self):
         url = "%s/%s/_mapping" % (self.opensearch_api_url, self.index_pattern)
         self._make_query(url, self.index_pattern, self.user_session.get,
-                         self.admin_session.get, 403, 200)
+                         self.admin_session.get, 200, 200)
 
     def test_update_index_mapping(self):
         data = {'properties': {'email': {'type': 'keyword'}}}
