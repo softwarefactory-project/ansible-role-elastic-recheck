@@ -5,7 +5,7 @@
     owner: "{{ elk_uid }}"
     group: "{{ elk_gid }}"
     state: directory
-    mode: '0750'
+    recurse: true
   loop:
     - "opensearch"
     - "opensearch-dashboards"
@@ -47,11 +47,8 @@
     openssl x509 -subject -nameopt RFC2253 -noout -in /etc/opensearch/certs/opensearch/opensearch-admin.crt | sed 's/subject= //g' | sed 's/subject=//g'
   register: elk_cert_subject
 
-- name: Set permissions to certs - opensearch
-  file:
-    path: "/etc/opensearch/certs"
-    owner: "{{ elk_uid }}"
-    group: "{{ elk_gid }}"
-    mode: '0755'
-    recurse: true
-    state: directory
+- name: Set permissions to the cert dir - opensearch
+  shell: |
+    chmod 0700 /etc/opensearch/certs /etc/opensearch/certs/{opensearch,opensearch-dashboards}
+    chmod 0700 /etc/opensearch /etc/opensearch
+    chown -R {{ elk_uid }}:{{ elk_gid }} /etc/opensearch/certs/{opensearch,opensearch-dashboards}/
