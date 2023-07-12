@@ -148,6 +148,7 @@ kibana_viewer_{{ user.tenant }}:
       - "?kibana"
       - "logstash-{{ user.tenant }}-*"
       - "zuul-{{ user.tenant }}.*"
+      - "zuul.{{ user.real_tenant_name }}-*"
       - "performance-{{ user.tenant }}-*"
       - "subunit-{{ user.tenant }}-*"
     allowed_actions:

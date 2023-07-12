@@ -4,7 +4,7 @@
     users: >-
       {%- set new_users = [] -%}
         {% for user in users %}
-          {%- set tmp_user =  user | combine({'tenant': user.tenant | replace('.', '_') | replace('-','_')})  -%}
+          {%- set tmp_user =  user | combine({'tenant': user.tenant | replace('.', '_') | replace('-','_')}, {'real_tenant_name': user.tenant}) -%}
           {%- set new_users = new_users.append( tmp_user ) -%}
         {% endfor %}
       {{ new_users }}
