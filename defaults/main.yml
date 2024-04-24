@@ -9,9 +9,8 @@ hide_sensitive_logs: true
 elk_uid: "1000"
 elk_gid: "1000"
 container_images:
-  opensearch: quay.io/software-factory/opensearch:2.4.0-1
-  opensearch-dashboards: quay.io/software-factory/opensearch-dashboards:2.4.0-1
-  logstash: quay.io/software-factory/logstash:7.10.1-1
+  opensearch: quay.io/software-factory/opensearch:2.11.1
+  opensearch-dashboards: quay.io/software-factory/opensearch-dashboards:2.11.1
 
 # NOTE: if cluster_role is empty, it would configure Elasticsearch
 # as a single node cluster.
