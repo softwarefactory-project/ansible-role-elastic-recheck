@@ -1,16 +1,27 @@
 ---
+- job:
+    name: opensearch-multitenancy-logscraper
+    description: Test for veryfing Opensearch multi tenancy with Logsender
+    run: test-playbooks/check-services.yml
+    required-projects:
+      - name: opendev.org/openstack/ci-log-processing
+      - name: software-factory/sf-infra
+    roles:
+      - zuul: software-factory/sf-infra
+      - zuul: opendev.org/openstack/ci-log-processing
+    nodeset:
+      nodes:
+        - name: opensearch.sftests.com
+          label: cloud-centos-9-stream
+
 - project:
     check:
       jobs:
         - linters:
             nodeset: linters-pod
-        - sf-ci-functional-external-elk: {}
-        - sf-ci-functional-allinone: {}
-        - sf-ci-upgrade-allinone: {}
+        - opensearch-multitenancy-logscraper: {}
     gate:
       jobs:
         - linters:
             nodeset: linters-pod
-        - sf-ci-functional-external-elk: {}
-        - sf-ci-functional-allinone: {}
-        - sf-ci-upgrade-allinone: {}
+        - opensearch-multitenancy-logscraper: {}

@@ -1,0 +1,90 @@
+---
+- hosts: all
+  become: true
+  vars:
+    fqdn: opensearch.sftests.com
+    tenant_configuration:
+      sftests.com:
+        opensearch_dashboards_autologin: "basic"
+    internal_users:
+      - user: "admin"
+        role: "admin"
+        password: "admin"
+      - user: "kibanaserver"
+        role: "kibanauser"
+        password: "kibanaserver"
+    users:
+      - user: "admin"
+        role: "admin"
+        password: "admin"
+        tenant: "sftests.com"
+      ### user for logsender + tenant sftests.com -> logstash_sftests_com
+      ### More info in: tasks/gen_informations.yaml
+      - user: "logstash"
+        role: "logstash"
+        password: "logstash"
+        tenant: "sftests.com"
+      ###
+      - user: "kibana"
+        role: "readonly"
+        password: "kibana"
+        tenant: "sftests.com"
+      - user: "zuul"
+        role: "admin"
+        password: "zuul"
+        tenant: "sftests.com"
+
+    ### logscraper
+    tenant_builds:
+      - tenant: local
+        zuul_api_url:
+          - https://softwarefactory-project.io/zuul/api/tenant/local
+        download_dir: /mnt/logscraper/local
+        ### from users
+        es_username: logstash_sftests_com
+        es_password: logstash
+        ####
+        es_host: opensearch.sftests.com
+        es_port: 9200
+        es_insecure: false
+        es_index_prefix: 'logstash-sftests_com-'
+        max_skipped: 200
+        logscraper_workers: 4
+        logsender_workers: 4
+        logsender_wait_time: 60
+        logscraper_wait_time: 600
+        logsender_custom_ca_crt: /etc/pki/ca-trust/source/anchors/opensearch.pem
+        performance_index_prefix: 'performance-sftests_com-'
+        subunit_index_prefix: 'subunit-sftests_com-'
+        file_list:
+          # The download list for Zuul local tenant
+          - /etc/logscraper/download-list-local.yaml
+        es_admin_username: admin
+        es_admin_password: admin
+    # for ci-log-processing
+    deploy_opensearch: false
+
+  tasks:
+    - name: Change hostname
+      ansible.builtin.hostname:
+        name: "{{ fqdn | default(inventory_hostname) }}"
+
+    - name: Ensure that correct hostname is set base on interface ip address
+      ansible.builtin.lineinfile:
+        dest: '/etc/hosts'
+        regexp: "^{{ fqdn | default(inventory_hostname) }}.+$"
+        line: "{{ ansible_default_ipv4.address }} {{ fqdn | default(inventory_hostname) }}"
+
+    - name: Deploy OpenSearch
+      include_role:
+        name: ansible-role-elastic-recheck
+
+    - name: Copy OpenSearch certificate to be valid by Logsender
+      ansible.builtin.copy:
+        src: /etc/opensearch/certs/opensearch/localCA.pem
+        dest: /etc/pki/ca-trust/source/anchors/opensearch.pem
+        remote_src: true
+
+    - name: Deploy Logscraper and run tests
+      include_role:
+        name: check-services
