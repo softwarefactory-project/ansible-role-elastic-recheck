@@ -77,18 +77,18 @@
       {{ opensearch_container_params }}
       -e DISABLE_INSTALL_DEMO_CONFIG=true
       -e "OPENSEARCH_JAVA_OPTS=-Xms{{ opensearch_minimum_heap_size }} -Xmx{{ opensearch_maximum_heap_size }} -Dlog4j2.formatMsgNoLookups=true"
-      -v /mnt/opensearch/data:/usr/share/opensearch/data:z
-      -v /mnt/opensearch/logs:/var/log/opensearch:z
-      -v /mnt/opensearch/logs/others:/usr/share/opensearch/logs:z
-      -v /etc/opensearch/certs/opensearch:/usr/share/opensearch/config/certs:Z
-      -v /etc/opensearch/opensearch.yml:/usr/share/opensearch/config/opensearch.yml:z
-      -v /etc/opensearch/internal_users.yml:/usr/share/opensearch/config/opensearch-security/internal_users.yml:z
-      -v /etc/opensearch/roles_mapping.yml:/usr/share/opensearch/config/opensearch-security/roles_mapping.yml:z
-      -v /etc/opensearch/tenants.yml:/usr/share/opensearch/config/opensearch-security/tenants.yml:z
-      -v /etc/opensearch/roles.yml:/usr/share/opensearch/config/opensearch-security/roles.yml:z
-      -v /etc/opensearch/action_groups.yml:/usr/share/opensearch/config/opensearch-security/action_groups.yml:z
-      -v /etc/opensearch/nodes_dn.yml:/usr/share/opensearch/config/opensearch-security//nodes_dn.yml:z
-      -v /etc/opensearch/whitelist.yml:/usr/share/opensearch/config/opensearch-security/whitelist.yml:z
-      -v /etc/opensearch/config.yml:/usr/share/opensearch/config/opensearch-security/config.yml:z
-      -v /etc/opensearch/log4j2.properties:/usr/share/opensearch/config/log4j2.properties:z
+      -v /mnt/opensearch/data:/usr/share/opensearch/data{{ opensearch_mount_options }}
+      -v /mnt/opensearch/logs:/var/log/opensearch{{ opensearch_mount_options }}
+      -v /mnt/opensearch/logs/others:/usr/share/opensearch/logs{{ opensearch_mount_options }}
+      -v /etc/opensearch/certs/opensearch:/usr/share/opensearch/config/certs{{ opensearch_mount_options }}
+      -v /etc/opensearch/opensearch.yml:/usr/share/opensearch/config/opensearch.yml{{ opensearch_mount_options }}
+      -v /etc/opensearch/internal_users.yml:/usr/share/opensearch/config/opensearch-security/internal_users.yml{{ opensearch_mount_options }}
+      -v /etc/opensearch/roles_mapping.yml:/usr/share/opensearch/config/opensearch-security/roles_mapping.yml{{ opensearch_mount_options }}
+      -v /etc/opensearch/tenants.yml:/usr/share/opensearch/config/opensearch-security/tenants.yml{{ opensearch_mount_options }}
+      -v /etc/opensearch/roles.yml:/usr/share/opensearch/config/opensearch-security/roles.yml{{ opensearch_mount_options }}
+      -v /etc/opensearch/action_groups.yml:/usr/share/opensearch/config/opensearch-security/action_groups.yml{{ opensearch_mount_options }}
+      -v /etc/opensearch/nodes_dn.yml:/usr/share/opensearch/config/opensearch-security//nodes_dn.yml{{ opensearch_mount_options }}
+      -v /etc/opensearch/whitelist.yml:/usr/share/opensearch/config/opensearch-security/whitelist.yml{{ opensearch_mount_options }}
+      -v /etc/opensearch/config.yml:/usr/share/opensearch/config/opensearch-security/config.yml{{ opensearch_mount_options }}
+      -v /etc/opensearch/log4j2.properties:/usr/share/opensearch/config/log4j2.properties{{ opensearch_mount_options }}
       {{ container_images['opensearch'] }}

@@ -23,6 +23,11 @@ ssl_key_file: /etc/letsencrypt/live/opensearch.sftests.com/privkey.pem
 ssl_chain_file: /etc/letsencrypt/live/opensearch.sftests.com/fullchain.pem
 validate_certs: true
 
+# What additional options should be added into the -v parameter when the
+# OpenSearch container is created.
+opensearch_mount_options: ":z"
+opensearch_dashboards_mount_options: ":z"
+
 # Setup Letsencrypt SSL cert for Opensearch service (NOT RECOMMENDED).
 # How to setup: https://github.com/opensearch-project/security/issues/52#issuecomment-937875037
 opensearch_ssl_cert_file: ''
