@@ -151,6 +151,7 @@ kibana_viewer_{{ user.tenant }}:
       - "zuul.{{ user.real_tenant_name }}-*"
       - "performance-{{ user.tenant }}-*"
       - "subunit-{{ user.tenant }}-*"
+      - "ftbfs-{{ user.tenant }}-*"
     allowed_actions:
       - "read"
       - "get"
@@ -205,6 +206,7 @@ kibana_viewer_{{ user.tenant }}:
         - "logstash-{{ user.tenant }}-*"
         - "performance-{{ user.tenant }}-*"
         - "subunit-{{ user.tenant }}-*"
+        - "ftbfs-{{ user.tenant }}-*"
       allowed_actions:
         - "crud"
         - "create_index"
