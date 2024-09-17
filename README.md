@@ -21,7 +21,6 @@ on single machine:
   vars:
     tenant_configuration:
       sftests.com:
-        logstash_input_port: 9998
         kibana_autologin: "basic"
     internal_users:
       - user: "admin"
@@ -138,10 +137,6 @@ external_opensearch:
       password: kibana
       role: readonly
 
-logstash:
-  host: opensearch-host-2
-  port: 9999
-
 kibana:
   readonly_user_autologin: Basic
   host_url: http://opensearch-host-2:5601
@@ -163,10 +158,6 @@ Where:
             for the user. So far, the `kibanaserver` user have very specific
             configuration and the `ansible-role-elastic-recheck` role is not
             configuring it.
-
-* in logstash:
-- `host` - the logstash host which will get metrics from e.g.: gearman worker.
-- `port` - port on which logstash service will listen.
 
 * in kibana:
 - readonly_user_autologin - if `Basic` is set it means that there will created

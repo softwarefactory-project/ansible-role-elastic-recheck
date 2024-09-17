@@ -1,8 +1,6 @@
 ---
 fqdn: opensearch.sftests.com
 
-setup_logstash: false
-
 # NOTE: the hide_sensitive_logs is set to false in Zuul CI jobs.
 hide_sensitive_logs: true
 
@@ -39,15 +37,6 @@ opensearch_minimum_heap_size: 512m
 # NOTE: you can add --memory param to limit memory consuming by the pod.
 opensearch_container_params: "--net host --pid host"
 
-logstash_uid: "1000"
-logstash_gid: "1000"
-logstash_http_port: '9601'
-logstash_log_path: /mnt/logstash/logs
-logstash_maximum_heap_size: 512m
-logstash_minimum_heap_size: 512m
-# NOTE: you can add --memory param to limit memory consuming by the pod.
-logstash_container_params: "--net host --pid host"
-
 # NOTE: you can add --memory param to limit memory consuming by the pod.
 opensearch_dashboards_container_params: "--net host --pid host"
 
@@ -75,6 +64,5 @@ users: []
 
 tenant_configuration: {}
 #  sftests.com:
-#    logstash_input_port: 9998
 #    kibana_autologin: "basic"
 #    retention_time: "14d"

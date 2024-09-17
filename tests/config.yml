@@ -3,7 +3,6 @@ opensearch_api_url: https://opensearch.sftests.com:9200
 insecure: True
 tenant_configuration:
   sftests.com:
-    logstash_input_port: 9998
     kibana_autologin: "basic"
 internal_users:
   - user: "admin"
