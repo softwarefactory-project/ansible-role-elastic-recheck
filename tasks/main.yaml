@@ -35,6 +35,9 @@
 - name: Configure ISM policy
   include_tasks: configure-ism.yml
 
+- name: Create index template
+  ansible.builtin.include_tasks: configure-index-template.yaml
+
 - name: Web configuration
   include_tasks: web.yml
 

@@ -1,0 +1,21 @@
+---
+# NOTE: After a while, there was too many shards in the OpenSearch, but
+# most of them was "UNASSIGNED". It means, that it was waiting for another
+# node to start the replicas. In our case, there would be no additional node,
+# so it will fail, but the shards will be "waiting".
+# To check UNASSIGNED charts:
+#   curl --user admin:$PASSWORD  https://$(hostname)/opensearch/_cat/shards | grep UNASSIGNED
+#
+# To delete shards:
+#   curl --user admin:$PASSWORD  https://$(hostname)/opensearch/_cat/shards | \
+#     grep UNASSIGNED | \
+#     grep <DATE> | \
+#     awk {'print $1'}  |  \
+#     xargs -i curl -XDELETE --user admin:$PASSWORD  "https://$(hostname)/opensearch/{}"
+
+- name: Create index template to set number of replicas
+  include_tasks: create-index-template.yaml
+  loop: "{{ users }}"
+  loop_control:
+    loop_var: user
+  no_log: true
