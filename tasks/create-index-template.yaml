@@ -1,15 +1,6 @@
 ---
 - name: "Create index template"
-  ansible.builtin.uri:
-    url: "https://{{ fqdn }}:9200/_index_template/{{ index }}"
-    user: admin
-    password: "{{ admin }}"
-    force_basic_auth: yes
-    method: PUT
-    body_format: json
-    body: {"index_patterns": ["{{ index }}-*", "{{ index }}.*"], "template": {"settings": {"number_of_replicas": 0 }}}
-    status_code: 200, 409
-    validate_certs: "{{ validate_certs }}"
+  ansible.builtin.include_tasks: do-index-template.yaml
   loop:
     - "logstash-{{ user.tenant }}"
     - "zuul-{{ user.tenant }}"

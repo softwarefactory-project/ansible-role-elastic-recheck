@@ -1,0 +1,24 @@
+---
+- name: "Check if index template already exists - {{ index }}"
+  ansible.builtin.uri:
+    url: "https://{{ fqdn }}:9200/_index_template/{{ index }}"
+    user: admin
+    password: "{{ admin }}"
+    force_basic_auth: yes
+    method: GET
+    status_code: [200, 404]
+    validate_certs: "{{ validate_certs }}"
+  register: _index_template_status
+
+- name: "Create index template - {{ index }}"
+  when: _index_template_status.status == 404
+  ansible.builtin.uri:
+    url: "https://{{ fqdn }}:9200/_index_template/{{ index }}"
+    user: admin
+    password: "{{ admin }}"
+    force_basic_auth: yes
+    method: PUT
+    body_format: json
+    body: {"index_patterns": ["{{ index }}-*", "{{ index }}.*"], "template": {"settings": {"number_of_replicas": 0 }}}
+    status_code: 200
+    validate_certs: "{{ validate_certs }}"
