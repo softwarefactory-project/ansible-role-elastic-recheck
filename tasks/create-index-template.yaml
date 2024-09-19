@@ -19,20 +19,3 @@
     - "ftbfs-{{ user.tenant }}"
   loop_control:
     loop_var: index
-
-- name: Get current index template
-  ansible.builtin.uri:
-    url: "https://{{ fqdn }}:9200/_cat/templates"
-    user: admin
-    password: "{{ admin }}"
-    force_basic_auth: yes
-    method: GET
-    status_code: 200
-    validate_certs: "{{ validate_certs }}"
-    return_content: yes
-  register: _index_template
-
-- name: Print index templates
-  ansible.builtin.debug:
-    msg: |
-      {{ _index_template.content }}
