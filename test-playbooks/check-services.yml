@@ -61,6 +61,7 @@
           - /etc/logscraper/download-list-local.yaml
         es_admin_username: admin
         es_admin_password: admin
+        selinux_context: "z"
     # for ci-log-processing
     deploy_opensearch: false
 
