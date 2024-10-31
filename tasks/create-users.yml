@@ -23,6 +23,7 @@
   set_fact:
     opensearch_tenants: "{{ users | map(attribute='tenant') | unique | list | join(',') }}"
     kibana_loginscreen_text: "{% for user in users %}{% if user['role'] == 'readonly' %} Tenant: {{ user['tenant'] }} user: {{ user['user'] + '_' + user['tenant'] }} password: {{ user['password'] }}{% endif %}{% endfor %}"
+  no_log: "{{ hide_sensitive_logs | bool }}"
 
 - name: Set the security plugin configuration
   template:

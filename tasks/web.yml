@@ -27,6 +27,7 @@
 - name: Set readonly user as fact
   set_fact:
     readonly_users: "{{ users | selectattr('role', 'equalto', 'readonly') | list }}"
+  no_log: "{{ hide_sensitive_logs | bool }}"
 
 - name: Generate kibana autologin location
   template:
