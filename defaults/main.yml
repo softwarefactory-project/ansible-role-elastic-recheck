@@ -65,4 +65,10 @@ users: []
 tenant_configuration: {}
 #  sftests.com:
 #    kibana_autologin: "basic"
-#    retention_time: "14d"
+#    ism:
+#      retention_time: 14d
+#      name: sftests
+#      indexes:
+#        - zuul.*
+#        - sftests.com.*
+#        - sftests.com-*
