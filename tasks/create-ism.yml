@@ -5,24 +5,27 @@
 # any index that will be created with name "logstash-" will be automatically
 # attached to the policy.
 - name: Setup ISM
+  when: "'ism' in tenant_configuration[item]"
   vars:
-    retention_time: "{{ tenant_configuration[item]['retention_time'] | default('14d') }}"
+    retention_time: "{{ tenant_configuration[item]['ism']['retention_time'] | default('14d') }}"
+    index_name: "{{ tenant_configuration[item]['ism']['name'] | default('universal') }}"
+    indexes: "{{ tenant_configuration[item]['ism']['indexes'] | list | default([]) }}"
   block:
     - name: Create a ISM policy
       uri:
-        url: "https://{{ fqdn }}:9200/_plugins/_ism/add/{{ index_name | default('universal') }}"
+        url: "https://{{ fqdn }}:9200/_plugins/_ism/add/{{ index_name }}"
         user: admin
         password: "{{ admin }}"
         force_basic_auth: yes
         method: POST
         body_format: json
-        body: { "policy_id": "{{ index_name | default('universal') }}-policy" }
+        body: { "policy_id": "{{ index_name }}-policy" }
         status_code: 200, 409
         validate_certs: "{{ validate_certs }}"
 
     - name: Add template to policy
       uri:
-        url: "https://{{ fqdn }}:9200/_plugins/_ism/policies/{{ index_name | default('universal') }}-policy"
+        url: "https://{{ fqdn }}:9200/_plugins/_ism/policies/{{ index_name }}-policy"
         user: admin
         password: "{{ admin }}"
         force_basic_auth: yes

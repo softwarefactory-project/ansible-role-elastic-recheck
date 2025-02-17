@@ -1,8 +1,8 @@
-{% if 'index_name' in item %}
+{% if indexes | length > 0 or index_name != 'universal' %}
 {
     "policy": {
-        "policy_id": "{{ item.index_name }}-policy",
-        "description": "Delete index after {{ item.retention_time | default('14d') }} for {{ item.index_name }}",
+        "policy_id": "{{ index_name }}-policy",
+        "description": "Delete index after {{ retention_time }} for {{ index_name }}",
         "default_state": "hot",
         "states": [
             {
@@ -12,7 +12,7 @@
                     {
                         "state_name": "delete",
                         "conditions": {
-                            "min_index_age": "{{ item.retention_time | default('14d') }}"
+                            "min_index_age": "{{ retention_time }}"
                         }
                     }
                 ]
@@ -29,9 +29,7 @@
         ],
         "ism_template": [
             {
-                "index_patterns": [
-                    "{{ item.index_name }}-*"
-                ],
+                "index_patterns": {{ indexes | to_json }},
                 "priority": 1
             }
         ]
