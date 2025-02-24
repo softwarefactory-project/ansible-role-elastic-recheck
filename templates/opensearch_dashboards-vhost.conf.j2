@@ -51,10 +51,6 @@
     </VirtualHost>
     {% endif -%}
 
-    <Location />
-        ProxyPass https://{{ fqdn }}:5601
-        ProxyPassReverse https://{{ fqdn }}:5601
-    </Location>
     <Location "/analytics">
         ProxyPass https://{{ fqdn }}:5601
         ProxyPassReverse https://{{ fqdn }}:5601
